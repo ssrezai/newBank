@@ -1,0 +1,59 @@
+<!DOCTYPE html >
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<title>مشتری حقیقی </title>
+<style>
+    body {
+        background-color: #eeffee;
+    }
+
+    div {
+        float: right;
+        margin-top: 30px;
+    }
+
+    fieldset {
+        margin-right: 55px;
+        margin-left: 55px;
+    }
+
+    input {
+        text-align: right;
+        margin-top: 6px;
+    }
+</style>
+
+</head>
+<body>
+
+<div id="div1">
+    <form action="ServletClass" method="get">
+        <fieldset>
+            <legend>تعریف مشتری جدید</legend>
+            <input type="text" name="first_name">نام<br>
+            <input type="text" name="last_name">نام خانوادگی<br>
+            <input type="text" name="father_name">نام پدر<br>
+            <input type="text" name="birth_date">تاریخ تولد<br>
+            <input type="text" name="national_code">کد ملی<br>
+            <input type="submit" value="ثبت"><br>
+
+        </fieldset>
+    </form>
+
+    <form>
+        <fieldset>
+            <legend>جستجوی مشتری</legend>
+            <input type="text" name="first_name"> نام<br>
+            <input type="text" name="last_name"> نام خانوادگی <br>
+            <input type="text" name="national_code"> کدملی <br>
+            <input type="text" name="customer_id"> شماره مشتری <br>
+            <input type="submit" value="جستجو">
+        </fieldset>
+    </form>
+</div>
+
+</body>
+</html>
