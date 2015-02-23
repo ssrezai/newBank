@@ -2,36 +2,18 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <title>مشتری حقوقی</title>
-<style>
-    body {
-        background-color: #eeffee;
-    }
-
-    div {
-        float: right;
-        align-content: center;
-    }
-
-    fieldset {
-        margin-right: 55px;
-        margin-left: 55px;
-    }
-
-    input {
-        text-align: right;
-        margin-top: 6px;
-    }
-</style>
 </head>
 
 <body>
 
 <div id="div1">
-    <form>
+    <form action="ServletClass" method="GET">
         <fieldset>
             <legend>تعریف مشتری جدید</legend>
+            <input type="hidden" name="type" value="legal">
             <input type="text" name="company_name"> نام شرکت <br>
             <input type="text" name="registration_date"> تاریخ ثبت <br>
             <input type="text" name="economic_code" >کد اقتصادی <br>
@@ -40,16 +22,17 @@
         </fieldset>
     </form>
 
-
     <form>
         <fieldset>
             <legend>جستجوی مشتری</legend>
             <input type="text" name="company_name"> نام شرکت<br>
             <input type="text" name="economic_code">کد اقتصادی <br>
             <input type="text" name="customer_ID">شماره مشتری<br>
+            <input type="hidden" name="type" value="legal">
             <input type="submit" value="جستجو">
         </fieldset>
     </form>
+    <textarea rows="4" cols="40">
 
 </div>
 

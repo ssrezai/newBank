@@ -1,0 +1,18 @@
+body {
+    background-color: #eeffee;
+}
+
+div {
+    float: right;
+    align-content: center;
+}
+
+fieldset {
+    margin-right: 55px;
+    margin-left: 55px;
+}
+
+input {
+    text-align: right;
+    margin-top: 6px;
+}

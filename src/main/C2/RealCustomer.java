@@ -1,6 +1,7 @@
 package C2;
 
 /**
+ *
  * Created by DOTIN SCHOOL 3 on 2/19/2015.
  */
 public class RealCustomer extends Customer {
@@ -9,6 +10,11 @@ public class RealCustomer extends Customer {
     private String fatherName;
     private String birthDate;
     private String nationalCode;
+    private int customerID;
+
+    public RealCustomer() {
+        super();
+    }
 
     public String getFirstName() {
         return firstName;

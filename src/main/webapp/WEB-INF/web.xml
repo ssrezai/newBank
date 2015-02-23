@@ -6,11 +6,19 @@
   <display-name>Archetype Created Web Application</display-name>
     <servlet>
         <servlet-name>ServletClass</servlet-name>
-        <servlet-class>C2.ServletClass</servlet-class>
+        <servlet-class>C2.InsertServletClass</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SearchServletClass</servlet-name>
+        <servlet-class>C2.SearchServletClass</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ServletClass</servlet-name>
         <url-pattern>/ServletClass</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SearchServletClass</servlet-name>
+        <url-pattern>/SearchServletClass</url-pattern>
+    </servlet-mapping>
 
-</web-app>
+  </web-app>
