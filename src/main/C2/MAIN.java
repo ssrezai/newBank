@@ -94,5 +94,20 @@ public class MAIN {
         //System.out.println(realCustomer.getFatherName());
 
 
+        ArrayList<RealCustomer> realCustomers= new ArrayList<RealCustomer>();
+        RealCustomer r1= new RealCustomer();
+        RealCustomer r2= new RealCustomer();
+        r1.setFirstName("ali");
+        r1.setLastName("mahmoodi");
+        r2.setFirstName("ahmad");
+        r2.setLastName("marani");
+        realCustomers.add(r1);
+        realCustomers.add(r2);
+        SearchServletClass servletClass= new SearchServletClass();
+        System.out.println(servletClass.makeRealCustomerTable(realCustomers));
+        System.out.println("action= \"/hi\"" );
+
+
+
     }
 }

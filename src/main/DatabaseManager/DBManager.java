@@ -10,23 +10,11 @@ import java.util.ArrayList;
 
 /**
  * Created by DOTIN SCHOOL 3 on 2/21/2015.
- *
  */
 public class DBManager {
-//    public static DBManager dbManager = new DBManager();
-//
-//    public static void setDbManager(DBManager dbManager) {
-//        DBManager.dbManager = dbManager;
-//    }
-//
-//    private DBManager() {
-//    }
-//
-//    public static DBManager getDbManager() {
-//        return dbManager;
-//    }
 
-    public static Connection makeConnection()  {
+
+    public static Connection makeConnection() {
         Connection connection = null;
         boolean successful;
         try {
@@ -207,12 +195,12 @@ public class DBManager {
 
     public static ArrayList<RealCustomer> searchRealCustomer(String query) {
         ArrayList<RealCustomer> realCustomersResult = new ArrayList<RealCustomer>();
-        Connection connection=makeConnection();
+        Connection connection = makeConnection();
         try {
-            PreparedStatement preparedStatement= connection.prepareStatement(query);
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                RealCustomer realCustomer= new RealCustomer();
+                RealCustomer realCustomer = new RealCustomer();
                 realCustomer.setNationalCode(resultSet.getString("nationalCode"));
                 realCustomer.setCustomerID(resultSet.getString("fk_customerID"));
                 realCustomer.setFirstName(resultSet.getString("firstName"));
@@ -229,12 +217,12 @@ public class DBManager {
 
     public static ArrayList<LegalCustomer> searchLegalCustomer(String query) {
         ArrayList<LegalCustomer> legalCustomersResult = new ArrayList<LegalCustomer>();
-        Connection connection=makeConnection();
+        Connection connection = makeConnection();
         try {
-            PreparedStatement preparedStatement= connection.prepareStatement(query);
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                LegalCustomer legalCustomer= new LegalCustomer();
+                LegalCustomer legalCustomer = new LegalCustomer();
                 legalCustomer.setRegistrationDate(resultSet.getString("registrationDate"));
                 legalCustomer.setName(resultSet.getString("companyName"));
                 legalCustomer.setCustomerID(resultSet.getString("fk_customerID"));
@@ -245,5 +233,72 @@ public class DBManager {
             e.printStackTrace();
         }
         return legalCustomersResult;
+    }
+
+    public static void deleteRecord(String query, String customer_id) {
+        Connection connection = makeConnection();
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, Integer.parseInt(customer_id));
+            preparedStatement.executeUpdate();
+            String customerQuery = "DELETE FROM customer WHERE customerID = " + customer_id;
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(customerQuery);
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateRecord(Customer customer) {
+        Connection connection = makeConnection();
+        String customerType = customer.getClass().getName();
+        if (customerType.contains("RealCustomer")) {
+            RealCustomer realCustomer= (RealCustomer) customer;
+            String query = "UPDATE real_customer" +
+                    "SET nationalCode=?, firstName=? ,lastName=? , fatherName=?, birthDate WHERE fk_customerID= " + customer.getCustomerID();
+            try {
+
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, realCustomer.getNationalCode());
+                preparedStatement.setString(2, realCustomer.getFirstName());
+                preparedStatement.setString(3, realCustomer.getLastName());
+                preparedStatement.setString(4, realCustomer.getFatherName());
+                preparedStatement.setString(5, realCustomer.getBirthDate());
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (customerType.contains("LegalCustomer")) {
+            LegalCustomer legalCustomer= (LegalCustomer) customer;
+            String query = "UPDATE legal_customer" +
+                    "SET economicCode=?, companyName=? ,registrationDate=?  WHERE fk_customerID= " + customer.getCustomerID();
+            try {
+
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, legalCustomer.getEconomicCode());
+                preparedStatement.setString(2, legalCustomer.getName());
+                preparedStatement.setString(3, legalCustomer.getRegistrationDate());
+                preparedStatement.executeUpdate();
+
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+//            try {
+//
+//            PreparedStatement preparedStatement = connection.prepareStatement(query);
+//            preparedStatement.setInt(1, Integer.parseInt(customer_id));
+//            preparedStatement.executeUpdate();
+//            String customerQuery = "DELETE FROM customer WHERE customerID = " + customer_id;
+//            Statement statement = connection.createStatement();
+//            statement.executeUpdate(customerQuery);
+//            connection.close();
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
     }
 }

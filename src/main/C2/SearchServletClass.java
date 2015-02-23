@@ -16,6 +16,8 @@ import java.util.ArrayList;
 
 /**
  * Created by DOTIN SCHOOL 3 on 2/21/2015.
+ *
+ * @author SamiraRezaei
  */
 public class SearchServletClass extends HttpServlet {
 
@@ -23,19 +25,18 @@ public class SearchServletClass extends HttpServlet {
         String type = request.getParameter("type");
         boolean validation = true;
         if (type.equalsIgnoreCase("real")) {
-
-            if ((request.getParameter("first_name")).length() == 0
-                    || request.getParameter("last_name").length() == 0
-                    || request.getParameter("customer_id").length() == 0
-                    || request.getParameter("national_code").length() == 0) ;
-            System.out.println("insufficient parameter for search...");
-            validation = false;
+            if ((request.getParameter("first_name")).length() == 0 && request.getParameter("last_name").length() == 0
+                    && request.getParameter("customer_id").length() == 0 && request.getParameter("national_code").length() == 0) {
+                System.out.println("insufficient parameter for search...real");
+                validation = false;
+            }
 
         } else if (type.equalsIgnoreCase("legal")) {
-            if ((request.getParameter("company_name")).length() == 0 || request.getParameter("economic_code").length() == 0
-                    || request.getParameter("customer_id").length() == 0) ;
-            System.out.println("insufficient parameter for search...");
-            validation = false;
+            if ((request.getParameter("company_name")).length() == 0 && request.getParameter("economic_code").length() == 0
+                    && request.getParameter("customer_ID").length() == 0) {
+                System.out.println("insufficient parameter for search...legal");
+                validation = false;
+            }
         }
         return validation;
     }
@@ -100,7 +101,7 @@ public class SearchServletClass extends HttpServlet {
     public String makeQueryForLegalCustomer(HttpServletRequest request) {
         Customer customer = new Customer();
         LegalCustomer legalCustomer = new LegalCustomer();
-        String query = "SELECT nationalCode,fk_customerID,firstName,lastName,fatherName,birthDate FROM real_customer WHERE ";
+        String query = "SELECT economicCode,fk_customerID,companyName,registrationDate FROM legal_customer WHERE ";
 
         if (request.getParameter("customer_ID").length() > 0) {
             customer.setCustomerID((request.getParameter("customer_ID")));
@@ -144,54 +145,228 @@ public class SearchServletClass extends HttpServlet {
         return query;
     }
 
-    public String makeResponse(ArrayList<String> arrayList)
-    {
-        String html="</head>\n" +
+    public String makeResponse(ArrayList<String> arrayList) {
+        String html = "</head>\n" +
                 "<body>\n" +
                 "\n" +
-                arrayList.get(1)+
+                arrayList.get(1) +
                 "</body>\n" +
                 "</html>";
 
         return html;
     }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (request != null) {
+            response.setContentType("text/html");
+
+            PrintWriter out = response.getWriter();
+//
+//            ArrayList<RealCustomer> realCustomers= new ArrayList<RealCustomer>();
+//            RealCustomer r1= new RealCustomer();
+//            RealCustomer r2= new RealCustomer();
+//            r1.setFirstName("ali");
+//            r1.setLastName("mahmoodi");
+//            r2.setFirstName("ahmad");
+//            r2.setLastName("marani");
+//            r1.setFatherName("Yasin");
+//            r2.setNationalCode("1245895665");
+//            realCustomers.add(r1);
+//            realCustomers.add(r2);
+
+            // out.println(makeRealCustomerTable(realCustomers));
+        }
 
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        ///first check that user write sth for search
-        if (checkFields(request)) {
-            ///start search process and send query to server...
+        if (request != null) {
+            ///first check that user write sth for search
+            System.out.println(checkFields(request));
             String type = request.getParameter("type");
-            Customer customer = new Customer();
-            if (type.equalsIgnoreCase("real")) {
-                String query = makeQueryForRealCustomer(request);
-                ArrayList<RealCustomer> realCustomerArrayList = DBManager.searchRealCustomer(query);
-                response.setContentType("text/html");
-                PrintWriter out = response.getWriter();
-                 String docType ="<!DOCTYPE html>";
-                ArrayList<String> st=new ArrayList<String>();
-                st.add("a");
-                st.add("b");
-                st.add("c");
-                out.println(docType+makeResponse(st));
+            if (checkFields(request)) {
+                ///start search process and send query to server...
 
+                System.out.println(type);
+                Customer customer = new Customer();
+                if (type.equalsIgnoreCase("real")) {
+                    String query = makeQueryForRealCustomer(request);
+                    ArrayList<RealCustomer> realCustomerArrayList = DBManager.searchRealCustomer(query);
+                    response.setContentType("text/html");
+                    PrintWriter printWriter = response.getWriter();
+                    printWriter.println(makeRealCustomerTable(realCustomerArrayList));
+                }
+                ///search for legal customer...///
+                else if (type.equalsIgnoreCase("legal")) {
+                    String query = makeQueryForLegalCustomer(request);
+                    System.out.println(query);
+                    ArrayList<LegalCustomer> legalCustomerArrayList = DBManager.searchLegalCustomer(query);
+                    response.setContentType("text/html");
+                    PrintWriter printWriter = response.getWriter();
+                    printWriter.println(makeLegalCustomerTable(legalCustomerArrayList));
+                }
             }
-            ///search for legal customer...///
-            else if (type.equalsIgnoreCase("legal")) {
-                String query=makeQueryForLegalCustomer(request);
-                ArrayList<LegalCustomer> legalCustomerArrayList= DBManager.searchLegalCustomer(query);
-
+            ///should tell user :Fill in at least one field....
+            else {
+                if (type.equalsIgnoreCase("real")) {
+                    response.sendRedirect("new-real-customer.html");
+                } else {
+                    response.sendRedirect("legal-customer.html");
+                }
             }
         }
-        ///should tell user :Fill in at least one field....
-        else {
-            response.sendRedirect("legal-customer.html");
-        }
 
+
+    }
+
+    public String makeRealCustomerTable(ArrayList<RealCustomer> realCustomers) {
+        String tableRows = "";
+
+        String deleteButton = "<input type=\"submit\" name=\"delete\"  value=\"delete\">\n";
+        String modifyButton = "<input type=\"submit\" value=\"modify\" name=\"modify\">\n";
+
+        String tableHeader = "<tr>\n" +
+                "    <th>Account Number</th>\n" +
+                "    <th>Firstname</th>\t\t\n" +
+                "    <th>Lastname</th>\n" +
+                "    <th>Fathername</th>\n" +
+                "    <th>National code</th>\t\t\n" +
+                "    <th>Birth date</th>\n" +
+                "     <th>Action</th>\n" +
+                "     <th>Action</th>\n" +
+                "     </tr>\n";
+        for (int count = 0; count < realCustomers.size(); count++) {
+            RealCustomer realCustomer = realCustomers.get(count);
+            String firstName = fillTableRow(realCustomer.getFirstName());
+            String lastName = fillTableRow(realCustomer.getLastName());
+            String fatherName = fillTableRow(realCustomer.getFatherName());
+            String birthDate = fillTableRow(realCustomer.getBirthDate());
+            String nationalCode = fillTableRow(realCustomer.getNationalCode());
+            String accountNumber = fillTableRow(realCustomer.getCustomerID());
+
+            tableRows = tableRows + "<form action= \"/ModifyServletClass\" method=\"post\">\n" +
+                    "<input type=\"hidden\" name=\"type\" value=\"real\">"
+                    + "<tr> " +
+                    "<td>" + accountNumber+  "</td>\n" +"<input type=\"hidden\" name=\"customer_id\" value="+accountNumber+">"+
+                    "<td> <input type=\"text\" name=\"first_name\" value=\"" + firstName + "\">"+ "</td>\n" +
+                    "<td> <input type=\"text\" name=\"last_name\" value=\"" + lastName + "\">"+ "</td>\n" +
+                    "<td><input type=\"text\" name=\"father_name\" value=\"" + fatherName + "\">"+ "</td>\n" +
+                    "<td><input type=\"text\" name=\"national_code\" value=\"" + nationalCode + "\">"+ "</td>\n" +
+                    "<td><input type=\"text\" name=\"birth_date\" value=\"" + birthDate + "\">"+ "</td>\n" +
+                    "<td>" + deleteButton + "</td>\n" +
+                    "<td>" + modifyButton+  "</td>\n"
+                    + "</tr>\n";
+        }
+        String htmlPart1 = "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "\n" +
+                "<head>\n" +
+                "<title> نتایج جستجو</title>"+
+                "<style>\n" +
+                "table, th, td {\n" +
+                "    border: 1px solid black;\n" +
+                "    border-collapse: collapse;\n" +
+                "}\n" +
+                "th, td {\n" +
+                "    padding: 5px;\n" +
+                "}\n" +
+                "</style>" +
+                "</head>\n" +
+                "\n" +
+                "<body>\n";
+
+        String tableTag = "<table>\n" + tableHeader + tableRows + "</table>";
+        String htmlPart2 = "<div>\n" +
+                "    <p>\n" +
+                "        <a href=\"new-real-customer.html\">\n" +
+                "            بازگشت به صفحه ی قبل\n" +
+                "        </a>\n" +
+                "    </p>\n" +
+                "</div>\n" +
+                "</body>\n" +
+                "</html>";
+
+        String finalHtml = htmlPart1 + tableTag + htmlPart2;
+        return finalHtml;
+
+    }
+
+
+    public String makeLegalCustomerTable(ArrayList<LegalCustomer> legalCustomers) {
+        String tableRows = "";
+
+        String deleteButton = "<input type=\"submit\" name=\"delete\"  value=\"delete\">\n";
+        String modifyButton = "<input type=\"submit\" value=\"modify\" name=\"modify\">\n";
+
+        String tableHeader = "<tr>\n" +
+                "    <th>Account Number</th>\n" +
+                "    <th>CompanyName</th>\t\t\n" +
+                "    <th>RegistrationDate</th>\n" +
+                "    <th>EconomicCode</th>\n" +
+                "     <th>Action</th>\n" +
+                "     <th>Action</th>\n" +
+                "     </tr>\n";
+        for (int count = 0; count < legalCustomers.size(); count++) {
+            LegalCustomer legalCustomer = legalCustomers.get(count);
+            String companyName = fillTableRow(legalCustomer.getName());
+            String registrationDate = fillTableRow(legalCustomer.getRegistrationDate());
+            String economicCode = fillTableRow(legalCustomer.getEconomicCode());
+            String accountNumber = fillTableRow(legalCustomer.getCustomerID());
+
+            tableRows = tableRows + "<form action= \"/ModifyServletClass\" method=\"post\">\n" +
+                    "<input type=\"hidden\" name=\"type\" value=\"legal\">"
+                    +"<tr> " +
+                    "<td>" + accountNumber + "</td>\n" +"<input type=\"hidden\" name=\"customer_id\" value="+accountNumber+">"+
+                    "<td>  <input type=\"text\" name=\"company_name\" value=\"" + companyName + "\">" + "</td>\n" +
+                    "<td> <input type=\"text\" name=\"registration_date\" value=\"" + registrationDate + "\">" + "</td>\n" +
+                    "<td> <input type=\"text\" name=\"economic_code\" value=\"" + economicCode + "\">" + "</td>\n" +
+                    "<td> " + deleteButton + "</td>\n" +
+                    "<td>" + modifyButton + "</td>\n"
+                    + "</tr>\n";
+        }
+        String htmlPart1 = "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "\n" +
+                "<head>\n" +
+                "<title> نتایج جستجو</title>"+
+                "<style>\n" +
+                "table, th, td {\n" +
+                "    border: 1px solid black;\n" +
+                "    border-collapse: collapse;\n" +
+                "}\n" +
+                "th, td {\n" +
+                "    padding: 5px;\n" +
+                "}\n" +
+                "</style>" +
+                "</head>\n" +
+                "\n" +
+                "<body>\n";
+
+        String tableTag = "<table>\n" + tableHeader + tableRows + "</table>";
+        String htmlPart2 = "<div>\n" +
+                "    <p>\n" +
+                "        <a href=\"legal-customer.html\">\n" +
+                "            بازگشت به صفحه ی قبل\n" +
+                "        </a>\n" +
+                "    </p>\n" +
+                "</div>\n" +
+                "</body>\n" +
+                "</html>";
+
+        String finalHtml = htmlPart1 + tableTag + htmlPart2;
+        return finalHtml;
+
+    }
+
+    ///set "-not set-" for null value in DB...
+    public String fillTableRow(String rowValue) {
+        String finalRowValue = "";
+        if (rowValue == null) {
+            finalRowValue = "-Not Set-";
+            return finalRowValue;
+        } else
+            return rowValue;
     }
 }

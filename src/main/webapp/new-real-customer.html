@@ -1,27 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="style.css">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <style>
-        body {
-            background-color: #eeffee;
-        }
-
-        div {
-            float: right;
-            margin-top: 30px;
-        }
-
-        fieldset {
-            margin-right: 55px;
-            margin-left: 55px;
-        }
-
-        input {
-            text-align: right;
-            margin-top: 6px;
-        }
-    </style>
+<title> مشتری حقوقی</title>
 </head>
 <body >
 <div>
@@ -40,16 +22,15 @@
 
         </fieldset>
 
-
-        <!--<input type="submit" value="Submit" />-->
     </form>
-    <form >
+    <form action="/SearchServletClass" method="post">
         <fieldset>
             <legend>جستجوی مشتری</legend>
             <input type="text" name="first_name"> نام<br>
             <input type="text" name="last_name"> نام خانوادگی <br>
             <input type="text" name="national_code"> کدملی <br>
             <input type="text" name="customer_id"> شماره مشتری <br>
+            <input type="hidden" name="type" value="real">
             <input type="submit" value="جستجو">
         </fieldset>
     </form>

@@ -12,6 +12,10 @@
         <servlet-name>SearchServletClass</servlet-name>
         <servlet-class>C2.SearchServletClass</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ModifyServletClass</servlet-name>
+        <servlet-class>C2.ModifyServletClass</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ServletClass</servlet-name>
         <url-pattern>/ServletClass</url-pattern>
@@ -19,6 +23,10 @@
     <servlet-mapping>
         <servlet-name>SearchServletClass</servlet-name>
         <url-pattern>/SearchServletClass</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ModifyServletClass</servlet-name>
+        <url-pattern>/ModifyServletClass</url-pattern>
     </servlet-mapping>
 
   </web-app>
