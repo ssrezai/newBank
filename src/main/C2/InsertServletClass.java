@@ -18,16 +18,14 @@ import java.sql.Connection;
  */
 public class InsertServletClass extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    public static final String HTML_START = "<html><body>";
-    public static final String HTML_END = "</body></html>";
-    private String message;
+
+    //private String message;
 
     /**
      * @see HttpServlet#HttpServlet()
      */
     public InsertServletClass() {
         super();
-        // TODO Auto-generated constructor stub
 
     }
 
@@ -62,13 +60,13 @@ public class InsertServletClass extends HttpServlet {
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        boolean successful;
+        //boolean successful;
         if (request != null) {
             String url = checkParameter(request);
 
             System.out.println(url);
             if (url.length() != 0) {
-                message = "اطلاعات را به طور کامل پر نمایید.";
+               // message = "اطلاعات را به طور کامل پر نمایید.";
                 // System.out.println(message);
                 response.sendRedirect(url);
 
@@ -88,8 +86,8 @@ public class InsertServletClass extends HttpServlet {
                         DBManager.insertToDataBase(connection, realCustomer);
                         response.sendRedirect("successful-real-insertion.html");
                     } catch (DuplicateCustomerException e) {
-                        successful = false;
-                        message = "شماره شناسنامه تکراری است.";
+                      //  successful = false;
+                     //   message = "شماره شناسنامه تکراری است.";
                         response.sendRedirect("duplicate-real-customer.html");
                         System.out.println("Duplicate real user");
                     }
@@ -105,59 +103,14 @@ public class InsertServletClass extends HttpServlet {
                         DBManager.insertToDataBase(connection, legalCustomer);
                         response.sendRedirect("successful-real-insertion.html");
                     } catch (DuplicateCustomerException e) {
-                        successful = false;
-                        message = "کد اقتصادی تکراری است.";
+                       // successful = false;
+                       // message = "کد اقتصادی تکراری است.";
                         System.out.println("Duplicate legal user");
                         response.sendRedirect("duplicate-legal-customer.html");
                     }
                 }
             }
 
-
-//            response.setContentType("text/html");
-//            PrintWriter out = response.getWriter();
-//            //String title = "Database Result";
-//            String docType ="<!DOCTYPE html>";
-//            out.println(docType +
-//                    "<html>\n" +
-//                    "<head>\n" +
-//                    "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n" +
-//                    "    <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">\n" +
-//                    "</head>\n" +
-//                    "<title>مشتری حقیقی </title>\n" +
-//                    "</head>\n" +
-//                    "<body>\n" +"<script type=\"text/javascript\">\n" +
-//                    "    alert(\"wrong value...try again\");\n" +
-//                    "</script>"+
-//                    "\n" +
-//                    "<div id=\"div1\">\n" +
-//                    "    <form action=\"ServletClass\" method=\"GET\">\n" +
-//                    "        <fieldset>\n" +
-//                    "            <legend>تعریف مشتری جدید</legend>\n" +
-//                    "\n" +
-//                    "            <input type=\"text\" name=\"first_name\">نام<br>\n" +
-//                    "            <input type=\"text\" name=\"last_name\">نام خانوادگی<br>\n" +
-//                    "            <input type=\"text\" name=\"father_name\">نام پدر<br>\n" +
-//                    "            <input type=\"text\" name=\"birth_date\">تاریخ تولد<br>\n" +
-//                    "            <input type=\"text\" name=\"national_code\">کد ملی<br>\n" +
-//                    "            <input type=\"hidden\" name=\"type\" value=\"real\">\n" +
-//                    "            <input type=\"submit\" value=\"ثبت\"><br>\n" +
-//                    "\n" +
-//                    "        </fieldset>\n" +
-//                    "    </form>\n" +
-//                    "\n" +
-//                    "    <form action=\"/SearchServletClass\">\n" +
-//                    "        <fieldset>\n" +
-//                    "            <legend>جستجوی مشتری</legend>\n" +
-//                    "            <input type=\"text\" name=\"first_name\"> نام<br>\n" +
-//                    "            <input type=\"text\" name=\"last_name\"> نام خانوادگی <br>\n" +
-//                    "            <input type=\"text\" name=\"national_code\"> کدملی <br>\n" +
-//                    "            <input type=\"text\" name=\"customer_id\"> شماره مشتری <br>\n" +
-//                    "            <input type=\"hidden\" name=\"type\" value=\"real\">\n" +
-//                    "            <input type=\"submit\" value=\"جستجو\">\n" +
-//                    "        </fieldset>\n" +
-//                    "    </form>\n" +
-//                    "</div>");
 
 
         }
@@ -190,10 +143,10 @@ public class InsertServletClass extends HttpServlet {
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
-        System.out.println("سلام");
-        System.out.println("455");
-        System.out.println(new String(request.getParameter("name")));
+//        request.setCharacterEncoding("UTF-8");
+//        System.out.println("سلام");
+//        System.out.println("455");
+
     }
 }
 
