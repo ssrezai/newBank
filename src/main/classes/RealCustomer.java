@@ -10,7 +10,7 @@ public class RealCustomer extends Customer {
     private String fatherName;
     private String birthDate;
     private String nationalCode;
-    private int customerID;
+
 
     public RealCustomer() {
         super();

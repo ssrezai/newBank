@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 
 
@@ -62,6 +63,7 @@ public class InsertServletClass extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //boolean successful;
         if (request != null) {
+            request.setCharacterEncoding("UTF-8");
             String url = checkParameter(request);
 
             System.out.println(url);
@@ -143,9 +145,23 @@ public class InsertServletClass extends HttpServlet {
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        request.setCharacterEncoding("UTF-8");
-//        System.out.println("سلام");
-//        System.out.println("455");
+
+        request.setCharacterEncoding("UTF-8");
+        System.out.println(request.getParameter("companyName"));
+        //////////////////////////
+        response.setContentType("text/html; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter printWriter = response.getWriter();
+        printWriter.println("<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<head>TEST...</head>\n" +
+                "<body>\n" +
+                "<div>" +
+                request.getParameter("companyName")+
+                "</div>" +
+                "</body>\n" +
+                "</html>");
+
 
     }
 }

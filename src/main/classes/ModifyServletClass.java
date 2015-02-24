@@ -15,7 +15,7 @@ import java.io.IOException;
 public class ModifyServletClass extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        request.setCharacterEncoding("UTF-8");
         if (request.getParameter("delete") != null) {
             if(request.getParameter("type").equals("real")) {
 
@@ -74,6 +74,7 @@ public class ModifyServletClass extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
         request.setCharacterEncoding("UTF-8");
         System.out.println(request.getParameter("companyName"));
 

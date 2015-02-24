@@ -8,7 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -144,11 +145,14 @@ public class SearchServletClass extends HttpServlet {
     }
 
 
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        //Charset.defaultCharset();
         request.setCharacterEncoding("UTF-8");
         System.out.println(request.getParameter("companyName"));
+        System.out.println(request.getCharacterEncoding());
+
         }
 
 
@@ -156,6 +160,7 @@ public class SearchServletClass extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (request != null) {
+            request.setCharacterEncoding("UTF-8");
             ///first check that user write sth for search
             System.out.println(checkFields(request));
             String type = request.getParameter("type");
@@ -365,8 +370,7 @@ public class SearchServletClass extends HttpServlet {
                 "</body>\n" +
                 "</html>";
 
-        String finalHtml = htmlPart1 + tableTag + htmlPart2;
-        return finalHtml;
+        return htmlPart1 + tableTag + htmlPart2;
 
     }
 

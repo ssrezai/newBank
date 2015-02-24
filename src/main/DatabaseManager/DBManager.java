@@ -10,18 +10,20 @@ import java.util.ArrayList;
 
 /**
  * Created by DOTIN SCHOOL 3 on 2/21/2015.
+ *
  */
 public class DBManager {
 
 
     public static Connection makeConnection() {
-        Connection connection = null;
-        boolean successful;
+        Connection connection =null;
+       // boolean successful;
         try {
+
             Class.forName("com.mysql.jdbc.Driver");
             System.out.println("MySQL JDBC Driver Registered!");
 
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/bank_db?useUnicode=true&characterEncoding=UTF-8", "root", "12345");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/bank_db?characterEncoding=UTF-8", "root", "12345");
             if (connection != null) {
                 System.out.println("You made it, take control your database now!");
                 return connection;
@@ -42,20 +44,21 @@ public class DBManager {
     }
 
     public static void insertToDataBase(Connection connection, Customer customer) throws DuplicateCustomerException {
-        boolean successful;
+        //boolean successful;
         String customerType = customer.getClass().getName();
         if (customerType.contains("RealCustomer")) {
             RealCustomer realCustomer = (RealCustomer) customer;
             try {
                 Boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
                 if (find) {
-                    successful = false;
+                   // successful = false;
                     throw new DuplicateCustomerException("");
 
                 } else {
                     insertRealCustomer(connection, realCustomer);
-                    successful = true;
+                   // successful = true;
                 }
+                connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -64,13 +67,14 @@ public class DBManager {
             try {
                 Boolean find = hasRecordInLegalCustomerTable(connection, legalCustomer.getEconomicCode());
                 if (find) {
-                    successful = false;
+                   // successful = false;
                     throw new DuplicateCustomerException("");
 
                 } else {
                     insertLegalCustomer(connection, legalCustomer);
-                    successful = true;
+                  //  successful = true;
                 }
+                connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -79,8 +83,7 @@ public class DBManager {
     }
 
     public static void insertCustomer(Connection connection, int customerID) {
-        String query = "INSERT INTO customer" + "(customerID) VALUES " +
-                "(?)";
+        String query = "INSERT INTO customer (customerID) VALUES (?)";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
 
@@ -117,6 +120,7 @@ public class DBManager {
             preparedStatement.setString(5, fatherName);
             preparedStatement.setString(6, birthDate);
             preparedStatement.executeUpdate();
+
             System.out.println("Record is inserted into real_customer table!");
         } catch (SQLException e) {
             e.printStackTrace();

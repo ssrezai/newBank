@@ -4,6 +4,10 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+    <!--<filter>-->
+        <!--<filter-name>UTF8Filter</filter-name>-->
+        <!--<filter-class> classes.UTF8Filter</filter-class>-->
+    <!--</filter>-->
     <servlet>
         <servlet-name>ServletClass</servlet-name>
         <servlet-class>classes.InsertServletClass</servlet-class>
@@ -29,4 +33,9 @@
         <url-pattern>/ModifyServletClass</url-pattern>
     </servlet-mapping>
 
-  </web-app>
+    <!--<filter-mapping>-->
+        <!--<filter-name>UTF8Filter</filter-name>-->
+        <!--<url-pattern> /UTF8Filter</url-pattern>-->
+    <!--</filter-mapping>-->
+</web-app>
+  <!--</web-app>-->
