@@ -1,4 +1,4 @@
-package C2;
+package classes;
 
 import DatabaseManager.DBManager;
 
@@ -10,11 +10,12 @@ import java.io.IOException;
 
 /**
  * Created by DOTIN SCHOOL 3 on 2/23/2015.
+ *
  */
 public class ModifyServletClass extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println(request.getParameter("action")+"&&&&&&&&&&&&&&&&&&&&");
+
         if (request.getParameter("delete") != null) {
             if(request.getParameter("type").equals("real")) {
 
@@ -29,7 +30,16 @@ public class ModifyServletClass extends HttpServlet {
                 String query = "DELETE FROM legal_customer WHERE fk_customerID= ?";
                 System.out.println(query);
                 DBManager.deleteRecord(query,request.getParameter("customer_id"));
+
+                System.out.println(request.getParameter("company_name"));
+                System.out.println(request.getParameter("registration_date"));
+                System.out.println(request.getParameter("economic_code"));
+                System.out.println(request.getParameter("customer_id"));
+
                 response.sendRedirect("successful-remove.html");
+
+
+
             }
 
         } else if(request.getParameter("modify")!=null) {
@@ -42,8 +52,9 @@ public class ModifyServletClass extends HttpServlet {
                 realCustomer.setBirthDate(request.getParameter("birth_date"));
                 realCustomer.setNationalCode(request.getParameter("national_code"));
                 realCustomer.setCustomerID(request.getParameter("customer_id"));
+                System.out.println("ModifyServlet.."+realCustomer.getFirstName()+" "+realCustomer.getLastName()+" "+realCustomer.getCustomerID()+" "+realCustomer.getNationalCode());
                 DBManager.updateRecord(realCustomer);
-                response.sendRedirect("new-real-customer.html");
+                response.sendRedirect("successful-real-update.html");
             }
             else if(request.getParameter("type").equals("legal"))
             {
@@ -52,9 +63,10 @@ public class ModifyServletClass extends HttpServlet {
                 legalCustomer.setRegistrationDate(request.getParameter("registration_date"));
                 legalCustomer.setName(request.getParameter("company_name"));
                 legalCustomer.setCustomerID(request.getParameter("customer_id"));
-                System.out.println(legalCustomer.getName()+".......................");
+                System.out.println("ModifyServlet.."+legalCustomer.getName()+" "+legalCustomer.getEconomicCode()+" "+legalCustomer.getCustomerID()+" "+legalCustomer.getRegistrationDate());
+
                 DBManager.updateRecord(legalCustomer);
-                response.sendRedirect("new-real-customer.html");
+                response.sendRedirect("successful-legal-update.html");
             }
 
         }
@@ -62,7 +74,8 @@ public class ModifyServletClass extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        System.out.println(request.getParameter("company_name"));
+        request.setCharacterEncoding("UTF-8");
+        System.out.println(request.getParameter("companyName"));
 
     }
 }

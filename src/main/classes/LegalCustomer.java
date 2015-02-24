@@ -1,7 +1,8 @@
-package C2;
+package classes;
 
 /**
  * Created by DOTIN SCHOOL 3 on 2/19/2015.
+ *
  */
 public class LegalCustomer extends Customer {
     private String name;

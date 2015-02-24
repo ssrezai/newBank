@@ -1,4 +1,4 @@
-package C2;
+package classes;
 
 /**
  *

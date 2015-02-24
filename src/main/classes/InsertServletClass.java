@@ -1,4 +1,4 @@
-package C2;
+package classes;
 
 import Exception.*;
 import DatabaseManager.DBManager;
@@ -101,7 +101,7 @@ public class InsertServletClass extends HttpServlet {
                     System.out.println(legalCustomer.getName() + " is a " + type + " customer");
                     try {
                         DBManager.insertToDataBase(connection, legalCustomer);
-                        response.sendRedirect("successful-real-insertion.html");
+                        response.sendRedirect("successful-legal-insertion.html");
                     } catch (DuplicateCustomerException e) {
                        // successful = false;
                        // message = "کد اقتصادی تکراری است.";

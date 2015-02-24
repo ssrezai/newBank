@@ -1,4 +1,4 @@
-package C2;
+package classes;
 
 import DatabaseManager.DBManager;
 
@@ -8,11 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by DOTIN SCHOOL 3 on 2/21/2015.
@@ -145,40 +143,15 @@ public class SearchServletClass extends HttpServlet {
         return query;
     }
 
-    public String makeResponse(ArrayList<String> arrayList) {
-        String html = "</head>\n" +
-                "<body>\n" +
-                "\n" +
-                arrayList.get(1) +
-                "</body>\n" +
-                "</html>";
 
-        return html;
-    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (request != null) {
-            response.setContentType("text/html");
-
-            PrintWriter out = response.getWriter();
-//
-//            ArrayList<RealCustomer> realCustomers= new ArrayList<RealCustomer>();
-//            RealCustomer r1= new RealCustomer();
-//            RealCustomer r2= new RealCustomer();
-//            r1.setFirstName("ali");
-//            r1.setLastName("mahmoodi");
-//            r2.setFirstName("ahmad");
-//            r2.setLastName("marani");
-//            r1.setFatherName("Yasin");
-//            r2.setNationalCode("1245895665");
-//            realCustomers.add(r1);
-//            realCustomers.add(r2);
-
-            // out.println(makeRealCustomerTable(realCustomers));
+        request.setCharacterEncoding("UTF-8");
+        System.out.println(request.getParameter("companyName"));
         }
 
-    }
+
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -190,11 +163,12 @@ public class SearchServletClass extends HttpServlet {
                 ///start search process and send query to server...
 
                 System.out.println(type);
-                Customer customer = new Customer();
+                //Customer customer = new Customer();
                 if (type.equalsIgnoreCase("real")) {
                     String query = makeQueryForRealCustomer(request);
                     ArrayList<RealCustomer> realCustomerArrayList = DBManager.searchRealCustomer(query);
-                    response.setContentType("text/html");
+                    response.setContentType("text/html; charset=UTF-8");
+                    response.setCharacterEncoding("UTF-8");
                     PrintWriter printWriter = response.getWriter();
                     printWriter.println(makeRealCustomerTable(realCustomerArrayList));
                 }
@@ -203,7 +177,8 @@ public class SearchServletClass extends HttpServlet {
                     String query = makeQueryForLegalCustomer(request);
                     System.out.println(query);
                     ArrayList<LegalCustomer> legalCustomerArrayList = DBManager.searchLegalCustomer(query);
-                    response.setContentType("text/html");
+                    response.setContentType("text/html; charset=UTF-8");
+                    response.setCharacterEncoding("UTF-8");
                     PrintWriter printWriter = response.getWriter();
                     printWriter.println(makeLegalCustomerTable(legalCustomerArrayList));
                 }
@@ -223,22 +198,21 @@ public class SearchServletClass extends HttpServlet {
 
     public String makeRealCustomerTable(ArrayList<RealCustomer> realCustomers) {
         String tableRows = "";
-
+        int count = realCustomers.size();
         String deleteButton = "<input type=\"submit\" name=\"delete\"  value=\"delete\">\n";
         String modifyButton = "<input type=\"submit\" value=\"modify\" name=\"modify\">\n";
 
         String tableHeader = "<tr>\n" +
-                "    <th>Account Number</th>\n" +
-                "    <th>Firstname</th>\t\t\n" +
-                "    <th>Lastname</th>\n" +
-                "    <th>Fathername</th>\n" +
-                "    <th>National code</th>\t\t\n" +
-                "    <th>Birth date</th>\n" +
-                "     <th>Action</th>\n" +
-                "     <th>Action</th>\n" +
+                "    <th>شماره حساب</th>\n" +
+                "    <th>نام</th>\t\t\n" +
+                "    <th>نام خانوادگی</th>\n" +
+                "    <th>نام پدر</th>\n" +
+                "    <th>کد ملی</th>\t\t\n" +
+                "    <th>تاریخ تولد</th>\n" +
+                "     <th>حذف</th>\n" +
+                "     <th>بروزرسانی</th>\n" +
                 "     </tr>\n";
-        for (int count = 0; count < realCustomers.size(); count++) {
-            RealCustomer realCustomer = realCustomers.get(count);
+        for (RealCustomer realCustomer : realCustomers) {
             String firstName = fillTableRow(realCustomer.getFirstName());
             String lastName = fillTableRow(realCustomer.getLastName());
             String fatherName = fillTableRow(realCustomer.getFatherName());
@@ -246,25 +220,39 @@ public class SearchServletClass extends HttpServlet {
             String nationalCode = fillTableRow(realCustomer.getNationalCode());
             String accountNumber = fillTableRow(realCustomer.getCustomerID());
 
-            tableRows = tableRows + "<form action= \"/ModifyServletClass\" method=\"post\">\n" +
-                    "<input type=\"hidden\" name=\"type\" value=\"real\">"
-                    + "<tr> " +
-                    "<td>" + accountNumber+  "</td>\n" +"<input type=\"hidden\" name=\"customer_id\" value="+accountNumber+">"+
-                    "<td> <input type=\"text\" name=\"first_name\" value=\"" + firstName + "\">"+ "</td>\n" +
-                    "<td> <input type=\"text\" name=\"last_name\" value=\"" + lastName + "\">"+ "</td>\n" +
-                    "<td><input type=\"text\" name=\"father_name\" value=\"" + fatherName + "\">"+ "</td>\n" +
-                    "<td><input type=\"text\" name=\"national_code\" value=\"" + nationalCode + "\">"+ "</td>\n" +
-                    "<td><input type=\"text\" name=\"birth_date\" value=\"" + birthDate + "\">"+ "</td>\n" +
+            tableRows = tableRows +
+                    "<tr> " +
+                    "<form action= \"/ModifyServletClass\" method=\"post\">\n" +
+                    "<input type=\"hidden\" name=\"type\" value=\"real\">" +
+                    "<td>" + accountNumber + "</td>\n" + "<input type=\"hidden\" name=\"customer_id\" value=" + accountNumber + ">" +
+                    "<td> <input type=\"text\" name=\"first_name\" value=\"" + firstName + "\">" + "</td>\n" +
+                    "<td> <input type=\"text\" name=\"last_name\" value=\"" + lastName + "\">" + "</td>\n" +
+                    "<td><input type=\"text\" name=\"father_name\" value=\"" + fatherName + "\">" + "</td>\n" +
+                    "<td><input type=\"text\" name=\"national_code\" value=\"" + nationalCode + "\">" + "</td>\n" +
+                    "<td><input type=\"text\" name=\"birth_date\" value=\"" + birthDate + "\">" + "</td>\n" +
                     "<td>" + deleteButton + "</td>\n" +
-                    "<td>" + modifyButton+  "</td>\n"
+                    "<td>" + modifyButton + "</td>\n" +
+                    " </form>"
                     + "</tr>\n";
         }
         String htmlPart1 = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "\n" +
                 "<head>\n" +
-                "<title> نتایج جستجو</title>"+
+                "<title> نتایج جستجو</title>" +
                 "<style>\n" +
+                "body,table,form {\n" +
+                "background-color: #eeffee;\n" +
+                "align-content: center;\n" +
+                "margin-left: auto;\n" +
+                " margin-right: auto;\n" +
+                "        }" +
+                " div {\n" +
+                " margin-top: 10px;\n" +
+                "margin-right: 70px;\n" +
+                " margin-left: 70px;\n" +
+                "text-align: center;\n" +
+                "}" +
                 "table, th, td {\n" +
                 "    border: 1px solid black;\n" +
                 "    border-collapse: collapse;\n" +
@@ -273,65 +261,83 @@ public class SearchServletClass extends HttpServlet {
                 "    padding: 5px;\n" +
                 "}\n" +
                 "</style>" +
+                "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">" +
                 "</head>\n" +
                 "\n" +
                 "<body>\n";
 
         String tableTag = "<table>\n" + tableHeader + tableRows + "</table>";
         String htmlPart2 = "<div>\n" +
-                "    <p>\n" +
-                "        <a href=\"new-real-customer.html\">\n" +
+                "  <p>\n" +
+                "  #of search result:" + count + "\n" +
+                "  </p>\n" +
+                "  <p>\n" +
+                "   <a href=\"new-real-customer.html\">\n" +
                 "            بازگشت به صفحه ی قبل\n" +
-                "        </a>\n" +
-                "    </p>\n" +
-                "</div>\n" +
+                "  </a>\n" +
+                "  </p>\n" +
+                "</div>" +
                 "</body>\n" +
                 "</html>";
 
-        String finalHtml = htmlPart1 + tableTag + htmlPart2;
-        return finalHtml;
+        return htmlPart1 + tableTag + htmlPart2;
 
     }
 
 
     public String makeLegalCustomerTable(ArrayList<LegalCustomer> legalCustomers) {
         String tableRows = "";
-
+        int count = legalCustomers.size();
         String deleteButton = "<input type=\"submit\" name=\"delete\"  value=\"delete\">\n";
         String modifyButton = "<input type=\"submit\" value=\"modify\" name=\"modify\">\n";
 
         String tableHeader = "<tr>\n" +
-                "    <th>Account Number</th>\n" +
-                "    <th>CompanyName</th>\t\t\n" +
-                "    <th>RegistrationDate</th>\n" +
-                "    <th>EconomicCode</th>\n" +
-                "     <th>Action</th>\n" +
-                "     <th>Action</th>\n" +
+                "    <th> شماره حساب</th>\n" +
+                "    <th>نام شرکت</th>\t\t\n" +
+                "    <th>تاریخ ثبت</th>\n" +
+                "    <th>کد اقتصادی</th>\n" +
+                "     <th>حذف</th>\n" +
+                "     <th>بروزرسانی</th>\n" +
                 "     </tr>\n";
-        for (int count = 0; count < legalCustomers.size(); count++) {
-            LegalCustomer legalCustomer = legalCustomers.get(count);
+        for (LegalCustomer legalCustomer : legalCustomers) {
             String companyName = fillTableRow(legalCustomer.getName());
             String registrationDate = fillTableRow(legalCustomer.getRegistrationDate());
             String economicCode = fillTableRow(legalCustomer.getEconomicCode());
             String accountNumber = fillTableRow(legalCustomer.getCustomerID());
 
-            tableRows = tableRows + "<form action= \"/ModifyServletClass\" method=\"post\">\n" +
-                    "<input type=\"hidden\" name=\"type\" value=\"legal\">"
-                    +"<tr> " +
-                    "<td>" + accountNumber + "</td>\n" +"<input type=\"hidden\" name=\"customer_id\" value="+accountNumber+">"+
+            tableRows = tableRows +
+                    "<tr> " +
+                    "<form action= \"/ModifyServletClass\" method=\"post\">\n" +
+                    "<input type=\"hidden\" name=\"type\" value=\"legal\">" +
+                    "<td>" + accountNumber + "</td>\n" + "<input type=\"hidden\" name=\"customer_id\" value=" + accountNumber + ">" +
                     "<td>  <input type=\"text\" name=\"company_name\" value=\"" + companyName + "\">" + "</td>\n" +
                     "<td> <input type=\"text\" name=\"registration_date\" value=\"" + registrationDate + "\">" + "</td>\n" +
                     "<td> <input type=\"text\" name=\"economic_code\" value=\"" + economicCode + "\">" + "</td>\n" +
                     "<td> " + deleteButton + "</td>\n" +
-                    "<td>" + modifyButton + "</td>\n"
+                    "<td>" + modifyButton + "</td>\n" +
+                    " </form>"
                     + "</tr>\n";
+            System.out.println("search " + legalCustomer.getName() + " " + legalCustomer.getEconomicCode() + " " + legalCustomer.getCustomerID() + " " + legalCustomer.getRegistrationDate());
+
         }
         String htmlPart1 = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "\n" +
                 "<head>\n" +
-                "<title> نتایج جستجو</title>"+
+                "<title> نتایج جستجو</title>" +
                 "<style>\n" +
+                "body,table,form {\n" +
+                "background-color: #eeffee;\n" +
+                "align-content: center;\n" +
+                "margin-left: auto;\n" +
+                " margin-right: auto;\n" +
+                "}" +
+                " div {\n" +
+                " margin-top: 10px;\n" +
+                "margin-right: 70px;\n" +
+                " margin-left: 70px;\n" +
+                "text-align: center;\n" +
+                "}" +
                 "table, th, td {\n" +
                 "    border: 1px solid black;\n" +
                 "    border-collapse: collapse;\n" +
@@ -339,19 +345,23 @@ public class SearchServletClass extends HttpServlet {
                 "th, td {\n" +
                 "    padding: 5px;\n" +
                 "}\n" +
+                "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">" +
                 "</style>" +
                 "</head>\n" +
                 "\n" +
-                "<body>\n";
+                "<body style=\"background-color: #eeffee\">\n";
 
         String tableTag = "<table>\n" + tableHeader + tableRows + "</table>";
         String htmlPart2 = "<div>\n" +
+                "    <p>\n" +
+                " #of search result:" + count + "\n" +
+                "    </p>\n" +
                 "    <p>\n" +
                 "        <a href=\"legal-customer.html\">\n" +
                 "            بازگشت به صفحه ی قبل\n" +
                 "        </a>\n" +
                 "    </p>\n" +
-                "</div>\n" +
+                "</div>" +
                 "</body>\n" +
                 "</html>";
 
@@ -362,10 +372,10 @@ public class SearchServletClass extends HttpServlet {
 
     ///set "-not set-" for null value in DB...
     public String fillTableRow(String rowValue) {
-        String finalRowValue = "";
+        AtomicReference<String> finalRowValue = new AtomicReference<String>(" ");
         if (rowValue == null) {
-            finalRowValue = "-Not Set-";
-            return finalRowValue;
+            finalRowValue.set("-Not Set-");
+            return finalRowValue.get();
         } else
             return rowValue;
     }

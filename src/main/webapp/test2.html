@@ -1,24 +1,77 @@
-<!DOCTYPE html>
+
+<!DOCTYPE html >
+
 <html>
 <head lang="en">
-    <meta charset="UTF-8">
+    <!--<meta charset="UTF-8">-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
     <title>hi</title>
+    <style>
+        body,table {
+            background-color: #eeffee;
+            align-content: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div {
+            margin-top: 10px;
+            margin-right: 70px;
+            margin-left: 70px;
+            text-align: center;
+        }
+
+    </style>
 </head>
-<body>
+<body style="background-color: #eeffee">
+<!--<div>-->
+    <table  >
+        <tr>
+            <form action="/SearchServletClass" method="get">
 
-<table>
-    <tr>
-        <form action="/ModifyServletClass" method="get">
-            <input type="text" value="salam" name="greating">
-            <input type="text" value="companyName" name="company_name"  >
+                <td>
+                    <input type="text" value="salam" name="greating">
+                </td>
+                <td>
+                    <input type="text" value="row1" name="companyName">
+                </td>
 
-            <input type="submit" value="click">
+                <td>
+                    <input type="submit" value="بگرد">
+                </td>
 
+            </form>
 
-        </form>
-    </tr>
-</table>
+        </tr>
+        <p>
 
+        </p>
+        <tr>
+            <form action="/SearchServletClass" method="get">
+
+                <td>
+                    <input type="text" value="salam" name="greating">
+                </td>
+                <td>
+                    <input type="text" value="row2" name="companyName">
+                </td>
+
+                <td>
+                    <input type="submit" value="click">
+                </td>
+
+            </form>
+
+        </tr>
+    </table>
+<!--</div>-->
+
+<div style="align-content: center">
+    <p>
+        #of search result: count
+    </p>
+</div>
 
 <div>
     <p>

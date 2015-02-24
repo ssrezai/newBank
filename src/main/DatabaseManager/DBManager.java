@@ -1,8 +1,8 @@
 package DatabaseManager;
 
-import C2.Customer;
-import C2.LegalCustomer;
-import C2.RealCustomer;
+import classes.Customer;
+import classes.LegalCustomer;
+import classes.RealCustomer;
 import Exception.*;
 
 import java.sql.*;
@@ -255,9 +255,9 @@ public class DBManager {
         String customerType = customer.getClass().getName();
         if (customerType.contains("RealCustomer")) {
             RealCustomer realCustomer= (RealCustomer) customer;
-            String query = "UPDATE real_customer" +
-                    "SET nationalCode=?, firstName=? ,lastName=? , fatherName=?, birthDate WHERE fk_customerID= " + customer.getCustomerID();
+            String query = "UPDATE real_customer SET nationalCode=?, firstName=? ,lastName=? , fatherName=?, birthDate=? WHERE fk_customerID = ?" ;
             try {
+                System.out.println("DB.."+realCustomer.getFirstName()+" "+realCustomer.getCustomerID()+" "+realCustomer.getNationalCode());
 
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setString(1, realCustomer.getNationalCode());
@@ -265,6 +265,7 @@ public class DBManager {
                 preparedStatement.setString(3, realCustomer.getLastName());
                 preparedStatement.setString(4, realCustomer.getFatherName());
                 preparedStatement.setString(5, realCustomer.getBirthDate());
+                preparedStatement.setInt(6, Integer.parseInt(realCustomer.getCustomerID()));
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -272,16 +273,14 @@ public class DBManager {
         }
         else if (customerType.contains("LegalCustomer")) {
             LegalCustomer legalCustomer= (LegalCustomer) customer;
-            String query = "UPDATE legal_customer" +
-                    "SET economicCode=?, companyName=? ,registrationDate=?  WHERE fk_customerID= " + customer.getCustomerID();
+            String query = "UPDATE legal_customer SET economicCode=?, companyName=? ,registrationDate=?  WHERE fk_customerID=? ";
+            System.out.println("DB.."+legalCustomer.getName()+" "+legalCustomer.getEconomicCode()+" "+legalCustomer.getCustomerID()+" "+legalCustomer.getRegistrationDate());
             try {
-
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setString(1, legalCustomer.getEconomicCode());
                 preparedStatement.setString(2, legalCustomer.getName());
                 preparedStatement.setString(3, legalCustomer.getRegistrationDate());
-                preparedStatement.executeUpdate();
-
+                preparedStatement.setInt(4,Integer.parseInt(legalCustomer.getCustomerID()));
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
