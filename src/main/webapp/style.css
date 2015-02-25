@@ -12,7 +12,7 @@ fieldset {
     margin-left: 55px;
 }
 
-input {
+input,select {
     text-align: right;
     margin-top: 6px;
 }
