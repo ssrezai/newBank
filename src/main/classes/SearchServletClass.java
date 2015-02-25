@@ -1,15 +1,12 @@
 package classes;
 
 import DatabaseManager.DBManager;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -40,105 +37,69 @@ public class SearchServletClass extends HttpServlet {
         return validation;
     }
 
-    public String makeQueryForRealCustomer(HttpServletRequest request) {
+    public String makeSelectQueryForRealCustomer(HttpServletRequest request) {
         String query = "SELECT nationalCode,fk_customerID,firstName,lastName,fatherName,birthDate FROM real_customer WHERE ";
         RealCustomer realCustomer = new RealCustomer();
-        Customer customer = new Customer();
-
-        if (request.getParameter("customer_id").length() > 0) {
-            customer.setCustomerID((request.getParameter("customer_id")));
-            realCustomer.setCustomerID(customer.getCustomerID());
-        }
-        if (request.getParameter("first_name").length() > 0) {
-            realCustomer.setFirstName(request.getParameter("first_name"));
-        }
-        if (request.getParameter("last_name").length() > 0) {
-            realCustomer.setLastName(request.getParameter("last_name"));
-        }
-        if (request.getParameter("national_code").length() > 0) {
-            realCustomer.setNationalCode(request.getParameter("national_code"));
-        }
-        ///until now we have a real customer with some file
-        // Connection connection = DBManager.makeConnection();
         int count = 0;
 
-        if (realCustomer.getFirstName() != null) {
-            if (count == 0) {
-                query = query + " firstName='" + realCustomer.getFirstName() + "'";
-                count++;
-            } else {
-                query = query + " & firstName='" + realCustomer.getFirstName() + "'";
-            }
+        if (request.getParameter("customer_id").length() > 0) {
+            query = query + " fk_customerID=" + Integer.parseInt(realCustomer.getCustomerID());
+            count++;
         }
-        if (realCustomer.getLastName() != null) {
-            if (count == 0) {
-                query = query + " lastName='" + realCustomer.getLastName() + "'";
-                count++;
-            } else {
-                query = query + " & lastName='" + realCustomer.getLastName() + "'";
-            }
-        }
-        if (realCustomer.getNationalCode() != null) {
+        if (request.getParameter("national_code").length() > 0) {
             if (count == 0) {
                 query = query + " nationalCode='" + realCustomer.getNationalCode() + "'";
-                count++;
+
             } else {
-                query = query + " & nationalCode='" + realCustomer.getNationalCode() + "'";
+                query = query + " AND nationalCode='" + realCustomer.getNationalCode() + "'";
             }
+            count++;
         }
-        if (realCustomer.getCustomerID() != null) {
+        if (request.getParameter("first_name").length() > 0) {
             if (count == 0) {
-                query = query + " fk_customerID=" + Integer.parseInt(realCustomer.getCustomerID());
-                count++;
+                query = query + " firstName='" + request.getParameter("first_name") + "'";
+
             } else {
-                query = query + " & fk_customerID='" + realCustomer.getCustomerID() + "'";
+                query = query + " AND firstName='" + request.getParameter("first_name") + "'";
             }
+            count++;
+        }
+        if (request.getParameter("last_name").length() > 0) {
+            if (count == 0) {
+                query = query + " lastName='" + realCustomer.getLastName() + "'";
+
+            } else {
+                query = query + " AND lastName='" + realCustomer.getLastName() + "'";
+            }
+
         }
         return query;
     }
 
-    public String makeQueryForLegalCustomer(HttpServletRequest request) {
-        Customer customer = new Customer();
-        LegalCustomer legalCustomer = new LegalCustomer();
+    public String makeSelectQueryForLegalCustomer(HttpServletRequest request) {
         String query = "SELECT economicCode,fk_customerID,companyName,registrationDate FROM legal_customer WHERE ";
-
-        if (request.getParameter("customer_ID").length() > 0) {
-            customer.setCustomerID((request.getParameter("customer_ID")));
-            legalCustomer.setCustomerID(customer.getCustomerID());
-        }
-        if (request.getParameter("economic_code").length() > 0) {
-            legalCustomer.setEconomicCode(request.getParameter("economic_code"));
-        }
-        if (request.getParameter("company_name").length() > 0) {
-            legalCustomer.setName(request.getParameter("company_name"));
-        }
-
-
         int count = 0;
 
-        if (legalCustomer.getName() != null) {
-            if (count == 0) {
-                query = query + " companyName='" + legalCustomer.getName() + "'";
-                count++;
-            } else {
-                query = query + " & companyName='" + legalCustomer.getName() + "'";
-            }
+        if (request.getParameter("customer_ID").length() > 0) {
+            query = query + " fk_customerID='" + request.getParameter("customer_ID") + "'";
+            count++;
         }
-        if (legalCustomer.getEconomicCode() != null) {
+        if (request.getParameter("economic_code").length() > 0) {
             if (count == 0) {
-                query = query + " economicCode='" + legalCustomer.getEconomicCode() + "'";
-                count++;
+                query = query + " economicCode='" + request.getParameter("economic_code") + "'";
+
             } else {
-                query = query + " & economicCode='" + legalCustomer.getEconomicCode() + "'";
+                query = query + " AND economicCode='" + request.getParameter("economic_code") + "'";
             }
+            count++;
         }
-        if (legalCustomer.getCustomerID() != null) {
+        if (request.getParameter("company_name").length() > 0) {
             if (count == 0) {
-                query = query + " fk_customerID='" + legalCustomer.getCustomerID() + "'";
-                count++;
+                query = query + " companyName='" + request.getParameter("company_name") + "'";
             } else {
-                query = query + " & fk_customerID='" + legalCustomer.getCustomerID() + "'";
+                query = query + " AND companyName='" + request.getParameter("company_name") + "'";
             }
+
         }
 
         return query;
@@ -148,13 +109,8 @@ public class SearchServletClass extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        //Charset.defaultCharset();
-        request.setCharacterEncoding("UTF-8");
-        System.out.println(request.getParameter("companyName"));
-        System.out.println(request.getCharacterEncoding());
 
-        }
-
+    }
 
 
     @Override
@@ -162,15 +118,11 @@ public class SearchServletClass extends HttpServlet {
         if (request != null) {
             request.setCharacterEncoding("UTF-8");
             ///first check that user write sth for search
-            System.out.println(checkFields(request));
             String type = request.getParameter("type");
             if (checkFields(request)) {
                 ///start search process and send query to server...
-
-                System.out.println(type);
-                //Customer customer = new Customer();
                 if (type.equalsIgnoreCase("real")) {
-                    String query = makeQueryForRealCustomer(request);
+                    String query = makeSelectQueryForRealCustomer(request);
                     ArrayList<RealCustomer> realCustomerArrayList = DBManager.searchRealCustomer(query);
                     response.setContentType("text/html; charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
@@ -179,7 +131,7 @@ public class SearchServletClass extends HttpServlet {
                 }
                 ///search for legal customer...///
                 else if (type.equalsIgnoreCase("legal")) {
-                    String query = makeQueryForLegalCustomer(request);
+                    String query = makeSelectQueryForLegalCustomer(request);
                     System.out.println(query);
                     ArrayList<LegalCustomer> legalCustomerArrayList = DBManager.searchLegalCustomer(query);
                     response.setContentType("text/html; charset=UTF-8");

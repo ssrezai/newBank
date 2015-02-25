@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 
 
@@ -40,16 +39,14 @@ public class InsertServletClass extends HttpServlet {
         if (type.equalsIgnoreCase("real")) {
 
             if ((request.getParameter("first_name")).length() == 0 || request.getParameter("last_name").length() == 0
-                    || request.getParameter("father_name").length() == 0 || request.getParameter("birth_date").length() == 0
-                    || request.getParameter("national_code").length() == 0) {
+                    || request.getParameter("father_name").length() == 0 || request.getParameter("national_code").length() == 0) {
                 url = "real-incomplete.html";
                 System.out.println("repeat...");
             }
 
 
         } else if (type.equalsIgnoreCase("legal")) {
-            if ((request.getParameter("company_name")).length() == 0 || request.getParameter("economic_code").length() == 0
-                    || request.getParameter("registration_date").length() == 0) {
+            if ((request.getParameter("company_name")).length() == 0 || request.getParameter("economic_code").length() == 0) {
                 url = "legal-incomplete.html";
                 System.out.println("repeat legal...");
             }
@@ -68,7 +65,7 @@ public class InsertServletClass extends HttpServlet {
 
             System.out.println(url);
             if (url.length() != 0) {
-               // message = "اطلاعات را به طور کامل پر نمایید.";
+                // message = "اطلاعات را به طور کامل پر نمایید.";
                 // System.out.println(message);
                 response.sendRedirect(url);
 
@@ -80,7 +77,8 @@ public class InsertServletClass extends HttpServlet {
                     realCustomer.setFirstName(request.getParameter("first_name"));
                     realCustomer.setLastName(request.getParameter("last_name"));
                     realCustomer.setFatherName(request.getParameter("father_name"));
-                    realCustomer.setBirthDate(request.getParameter("birth_date"));
+                    String birthDate = request.getParameter("year") + "/" + request.getParameter("month") + "/" + request.getParameter("day");
+                    realCustomer.setBirthDate(birthDate);
                     realCustomer.setNationalCode(request.getParameter("national_code"));
                     System.out.println(realCustomer.getFirstName() + " " + realCustomer.getLastName() + " is a " + type + " customer");
                     System.out.println(request.getParameter("type"));
@@ -88,8 +86,8 @@ public class InsertServletClass extends HttpServlet {
                         DBManager.insertToDataBase(connection, realCustomer);
                         response.sendRedirect("successful-real-insertion.html");
                     } catch (DuplicateCustomerException e) {
-                      //  successful = false;
-                     //   message = "شماره شناسنامه تکراری است.";
+                        //  successful = false;
+                        //   message = "شماره شناسنامه تکراری است.";
                         response.sendRedirect("duplicate-real-customer.html");
                         System.out.println("Duplicate real user");
                     }
@@ -99,14 +97,15 @@ public class InsertServletClass extends HttpServlet {
                     LegalCustomer legalCustomer = new LegalCustomer();
                     legalCustomer.setEconomicCode(request.getParameter("economic_code"));
                     legalCustomer.setName(request.getParameter("company_name"));
-                    legalCustomer.setRegistrationDate(request.getParameter("registration_date"));
+                    String registrationDate = request.getParameter("year") + "/" + request.getParameter("month") + "/" + request.getParameter("day");
+                    legalCustomer.setRegistrationDate(registrationDate);
                     System.out.println(legalCustomer.getName() + " is a " + type + " customer");
                     try {
                         DBManager.insertToDataBase(connection, legalCustomer);
                         response.sendRedirect("successful-legal-insertion.html");
                     } catch (DuplicateCustomerException e) {
-                       // successful = false;
-                       // message = "کد اقتصادی تکراری است.";
+                        // successful = false;
+                        // message = "کد اقتصادی تکراری است.";
                         System.out.println("Duplicate legal user");
                         response.sendRedirect("duplicate-legal-customer.html");
                     }
@@ -114,53 +113,14 @@ public class InsertServletClass extends HttpServlet {
             }
 
 
-
         }
 
-        // Set response content type
-        // response.sendRedirect("real-customer.html");
-        //  request.getRequestDispatcher("real-customer.html").forward(request,response);
-//        response.setContentType("text/html");
-//
-//        PrintWriter out = response.getWriter();
-//        String title = "Using GET Method to Read Form Data";
-//        String docType =
-//                "<!doctype html public \"-//w3c//dtd html 4.0 " +
-//                        "transitional//en\">\n";
-//        out.println(docType +
-//                "<html>\n" +
-//                "<head><title>" + title + "</title></head>\n" +
-//                "<body bgcolor=\"#f0f0f0\">\n" +
-//                "<h1 align=\"center\">" + title + "</h1>\n" +
-//                "<ul>\n" +
-//                "  <li><b>First Name</b>: "
-//                + request.getParameter("first_name") + "\n" +
-//                "  <li><b>Last Name</b>: "
-//                + request.getParameter("last_name") + "\n" +
-//                "</ul>\n" +
-//                "</body></html>");
     }
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        request.setCharacterEncoding("UTF-8");
-        System.out.println(request.getParameter("companyName"));
-        //////////////////////////
-        response.setContentType("text/html; charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        PrintWriter printWriter = response.getWriter();
-        printWriter.println("<!DOCTYPE html>\n" +
-                "<html>\n" +
-                "<head>TEST...</head>\n" +
-                "<body>\n" +
-                "<div>" +
-                request.getParameter("companyName")+
-                "</div>" +
-                "</body>\n" +
-                "</html>");
 
 
     }
