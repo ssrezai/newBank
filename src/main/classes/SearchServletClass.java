@@ -1,6 +1,7 @@
 package classes;
 
 import DatabaseManager.DBManager;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -39,19 +40,19 @@ public class SearchServletClass extends HttpServlet {
 
     public String makeSelectQueryForRealCustomer(HttpServletRequest request) {
         String query = "SELECT nationalCode,fk_customerID,firstName,lastName,fatherName,birthDate FROM real_customer WHERE ";
-        RealCustomer realCustomer = new RealCustomer();
+       // RealCustomer realCustomer = new RealCustomer();
         int count = 0;
 
         if (request.getParameter("customer_id").length() > 0) {
-            query = query + " fk_customerID=" + Integer.parseInt(realCustomer.getCustomerID());
+            query = query + " fk_customerID=" + Integer.parseInt(request.getParameter("customer_id"));
             count++;
         }
         if (request.getParameter("national_code").length() > 0) {
             if (count == 0) {
-                query = query + " nationalCode='" + realCustomer.getNationalCode() + "'";
+                query = query + " nationalCode='" + request.getParameter("national_code") + "'";
 
             } else {
-                query = query + " AND nationalCode='" + realCustomer.getNationalCode() + "'";
+                query = query + " AND nationalCode='" + request.getParameter("national_code") + "'";
             }
             count++;
         }
@@ -66,13 +67,14 @@ public class SearchServletClass extends HttpServlet {
         }
         if (request.getParameter("last_name").length() > 0) {
             if (count == 0) {
-                query = query + " lastName='" + realCustomer.getLastName() + "'";
+                query = query + " lastName='" + request.getParameter("last_name") + "'";
 
             } else {
-                query = query + " AND lastName='" + realCustomer.getLastName() + "'";
+                query = query + " AND lastName='" + request.getParameter("last_name") + "'";
             }
 
         }
+        System.out.println("in servlet: "+query);
         return query;
     }
 
@@ -123,7 +125,9 @@ public class SearchServletClass extends HttpServlet {
                 ///start search process and send query to server...
                 if (type.equalsIgnoreCase("real")) {
                     String query = makeSelectQueryForRealCustomer(request);
+                    System.out.println("in post: "+query);
                     ArrayList<RealCustomer> realCustomerArrayList = DBManager.searchRealCustomer(query);
+                    System.out.println("size in post:"+realCustomerArrayList.size());
                     response.setContentType("text/html; charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     PrintWriter printWriter = response.getWriter();
@@ -176,7 +180,7 @@ public class SearchServletClass extends HttpServlet {
             String birthDate = fillTableRow(realCustomer.getBirthDate());
             String nationalCode = fillTableRow(realCustomer.getNationalCode());
             String accountNumber = fillTableRow(realCustomer.getCustomerID());
-
+System.out.println(firstName+" "+lastName+""+fatherName+""+birthDate);
             tableRows = tableRows +
                     "<tr> " +
                     "<form action= \"/ModifyServletClass\" method=\"post\">\n" +

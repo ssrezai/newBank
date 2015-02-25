@@ -4,28 +4,24 @@ import classes.Customer;
 import classes.LegalCustomer;
 import classes.RealCustomer;
 import Exception.*;
-
 import java.sql.*;
 import java.util.ArrayList;
 
 /**
+ * @author Samira Rezaei
  * Created by DOTIN SCHOOL 3 on 2/21/2015.
- *
  */
 public class DBManager {
 
 
     public static Connection makeConnection() {
-        Connection connection =null;
-       // boolean successful;
+        Connection connection = null;
         try {
-
             Class.forName("com.mysql.jdbc.Driver");
             System.out.println("MySQL JDBC Driver Registered!");
-
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/bank_db?characterEncoding=UTF-8", "root", "12345");
             if (connection != null) {
-                System.out.println("You made it, take control your database now!");
+                System.out.println("successfully connected to DB...");
                 return connection;
 
             } else {
@@ -38,25 +34,22 @@ public class DBManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return connection;
-
     }
 
     public static void insertToDataBase(Connection connection, Customer customer) throws DuplicateCustomerException {
-        //boolean successful;
         String customerType = customer.getClass().getName();
         if (customerType.contains("RealCustomer")) {
             RealCustomer realCustomer = (RealCustomer) customer;
             try {
                 Boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
                 if (find) {
-                   // successful = false;
+                    // successful = false;
                     throw new DuplicateCustomerException("");
 
                 } else {
                     insertRealCustomer(connection, realCustomer);
-                   // successful = true;
+                    // successful = true;
                 }
                 connection.close();
             } catch (SQLException e) {
@@ -67,12 +60,12 @@ public class DBManager {
             try {
                 Boolean find = hasRecordInLegalCustomerTable(connection, legalCustomer.getEconomicCode());
                 if (find) {
-                   // successful = false;
+                    // successful = false;
                     throw new DuplicateCustomerException("");
 
                 } else {
                     insertLegalCustomer(connection, legalCustomer);
-                  //  successful = true;
+                    //  successful = true;
                 }
                 connection.close();
             } catch (SQLException e) {
@@ -86,7 +79,6 @@ public class DBManager {
         String query = "INSERT INTO customer (customerID) VALUES (?)";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-
             preparedStatement.setInt(1, customerID);
             preparedStatement.executeUpdate();
             System.out.println("Record is inserted into customer table!");
@@ -96,7 +88,6 @@ public class DBManager {
     }
 
     public static void insertRealCustomer(Connection connection, RealCustomer realCustomer) {
-        Boolean result = true;
         String firstName = realCustomer.getFirstName();
         String lastName = realCustomer.getLastName();
         String fatherName = realCustomer.getFatherName();
@@ -122,6 +113,8 @@ public class DBManager {
             preparedStatement.executeUpdate();
 
             System.out.println("Record is inserted into real_customer table!");
+            connection.close();
+            System.out.println("connection was closed...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -141,14 +134,10 @@ public class DBManager {
             customerID = count + 1;
             System.out.println("new customer ID:" + customerID);
             return customerID;
-
-
         } catch (SQLException s) {
             System.out.println("SQL statement is not executed!");
-        } finally {
-            return customerID;
         }
-
+        return customerID;
     }
 
     public static void insertLegalCustomer(Connection connection, LegalCustomer legalCustomer) {
@@ -172,6 +161,8 @@ public class DBManager {
             preparedStatement.setString(3, companyName);
             preparedStatement.setString(4, registrationDate);
             preparedStatement.executeUpdate();
+            connection.close();
+            System.out.println("connection was closed...");
             System.out.println("Record is inserted into legal_customer table!");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -200,9 +191,11 @@ public class DBManager {
     public static ArrayList<RealCustomer> searchRealCustomer(String query) {
         ArrayList<RealCustomer> realCustomersResult = new ArrayList<RealCustomer>();
         Connection connection = makeConnection();
+        System.out.println(query);
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println(resultSet.getFetchSize());
             while (resultSet.next()) {
                 RealCustomer realCustomer = new RealCustomer();
                 realCustomer.setNationalCode(resultSet.getString("nationalCode"));
@@ -216,6 +209,7 @@ public class DBManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.out.println("size in DB:"+realCustomersResult.size());
         return realCustomersResult;
     }
 
@@ -258,10 +252,10 @@ public class DBManager {
         Connection connection = makeConnection();
         String customerType = customer.getClass().getName();
         if (customerType.contains("RealCustomer")) {
-            RealCustomer realCustomer= (RealCustomer) customer;
-            String query = "UPDATE real_customer SET nationalCode=?, firstName=? ,lastName=? , fatherName=?, birthDate=? WHERE fk_customerID = ?" ;
+            RealCustomer realCustomer = (RealCustomer) customer;
+            String query = "UPDATE real_customer SET nationalCode=?, firstName=? ,lastName=? , fatherName=?, birthDate=? WHERE fk_customerID = ?";
             try {
-                System.out.println("DB.."+realCustomer.getFirstName()+" "+realCustomer.getCustomerID()+" "+realCustomer.getNationalCode());
+                System.out.println("DB.." + realCustomer.getFirstName() + " " + realCustomer.getCustomerID() + " " + realCustomer.getNationalCode());
 
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setString(1, realCustomer.getNationalCode());
@@ -274,34 +268,20 @@ public class DBManager {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
-        else if (customerType.contains("LegalCustomer")) {
-            LegalCustomer legalCustomer= (LegalCustomer) customer;
+        } else if (customerType.contains("LegalCustomer")) {
+            LegalCustomer legalCustomer = (LegalCustomer) customer;
             String query = "UPDATE legal_customer SET economicCode=?, companyName=? ,registrationDate=?  WHERE fk_customerID=? ";
-            System.out.println("DB.."+legalCustomer.getName()+" "+legalCustomer.getEconomicCode()+" "+legalCustomer.getCustomerID()+" "+legalCustomer.getRegistrationDate());
+            System.out.println("DB.." + legalCustomer.getName() + " " + legalCustomer.getEconomicCode() + " " + legalCustomer.getCustomerID() + " " + legalCustomer.getRegistrationDate());
             try {
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setString(1, legalCustomer.getEconomicCode());
                 preparedStatement.setString(2, legalCustomer.getName());
                 preparedStatement.setString(3, legalCustomer.getRegistrationDate());
-                preparedStatement.setInt(4,Integer.parseInt(legalCustomer.getCustomerID()));
+                preparedStatement.setInt(4, Integer.parseInt(legalCustomer.getCustomerID()));
                 preparedStatement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-//            try {
-//
-//            PreparedStatement preparedStatement = connection.prepareStatement(query);
-//            preparedStatement.setInt(1, Integer.parseInt(customer_id));
-//            preparedStatement.executeUpdate();
-//            String customerQuery = "DELETE FROM customer WHERE customerID = " + customer_id;
-//            Statement statement = connection.createStatement();
-//            statement.executeUpdate(customerQuery);
-//            connection.close();
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
     }
 }
