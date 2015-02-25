@@ -1,0 +1,16 @@
+body,table {
+    background-color: #eeffee;
+    align-content: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+td{
+    padding: 2px;
+}
+
+div,fieldset {
+    margin-top: 40px;
+    margin-right: 180px;
+    margin-left: 180px;
+    text-align: center;
+}
