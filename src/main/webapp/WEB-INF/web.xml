@@ -1,13 +1,13 @@
 <!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-  <display-name>Archetype Created Web Application</display-name>
-    <!--<filter>-->
-        <!--<filter-name>UTF8Filter</filter-name>-->
-        <!--<filter-class> classes.UTF8Filter</filter-class>-->
-    <!--</filter>-->
+    <!--<context-param>-->
+        <!--<param-name>aaaaa</param-name>-->
+        <!--<param-value>aaaa</param-value>-->
+    <!--</context-param>-->
+    <display-name>Archetype Created Web Application</display-name>
     <servlet>
         <servlet-name>ServletClass</servlet-name>
         <servlet-class>classes.InsertServletClass</servlet-class>
@@ -33,9 +33,6 @@
         <url-pattern>/ModifyServletClass</url-pattern>
     </servlet-mapping>
 
-    <!--<filter-mapping>-->
-        <!--<filter-name>UTF8Filter</filter-name>-->
-        <!--<url-pattern> /UTF8Filter</url-pattern>-->
-    <!--</filter-mapping>-->
 </web-app>
-  <!--</web-app>-->
+
+        <!--</web-app>-->

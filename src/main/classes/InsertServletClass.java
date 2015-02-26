@@ -2,6 +2,8 @@ package classes;
 
 import Exception.*;
 import DatabaseManager.DBManager;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,8 +20,7 @@ import java.sql.Connection;
  */
 public class InsertServletClass extends HttpServlet {
     private static final long serialVersionUID = 1L;
-
-    //private String message;
+    static final Logger logger = Logger.getLogger(DBManager.class);
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -41,32 +42,26 @@ public class InsertServletClass extends HttpServlet {
             if ((request.getParameter("first_name")).length() == 0 || request.getParameter("last_name").length() == 0
                     || request.getParameter("father_name").length() == 0 || request.getParameter("national_code").length() == 0) {
                 url = "real-incomplete.html";
-                System.out.println("repeat...");
             }
 
 
         } else if (type.equalsIgnoreCase("legal")) {
             if ((request.getParameter("company_name")).length() == 0 || request.getParameter("economic_code").length() == 0) {
                 url = "legal-incomplete.html";
-                System.out.println("repeat legal...");
             }
-
         }
-        System.out.println(url);
         return url;
     }
 
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        //boolean successful;
+
         if (request != null) {
+            BasicConfigurator.configure();
             request.setCharacterEncoding("UTF-8");
             String url = checkParameter(request);
-
-            System.out.println(url);
             if (url.length() != 0) {
-                // message = "اطلاعات را به طور کامل پر نمایید.";
-                // System.out.println(message);
+                logger.warn("Insufficient parameter for submit new customer...");
                 response.sendRedirect(url);
 
             } else {
@@ -80,41 +75,33 @@ public class InsertServletClass extends HttpServlet {
                     String birthDate = request.getParameter("year") + "/" + request.getParameter("month") + "/" + request.getParameter("day");
                     realCustomer.setBirthDate(birthDate);
                     realCustomer.setNationalCode(request.getParameter("national_code"));
-                    System.out.println(realCustomer.getFirstName() + " " + realCustomer.getLastName() + " is a " + type + " customer");
-                    System.out.println(request.getParameter("type"));
                     try {
                         DBManager.insertToDataBase(connection, realCustomer);
                         response.sendRedirect("successful-real-insertion.html");
+                        logger.info("Redirect: successful-real-insertion.html...");
                     } catch (DuplicateCustomerException e) {
-                        //  successful = false;
-                        //   message = "شماره شناسنامه تکراری است.";
                         response.sendRedirect("duplicate-real-customer.html");
-                        System.out.println("Duplicate real user");
+                        logger.info("Redirect: duplicate-real-customer.html...");
                     }
 
                 } else if (type.equalsIgnoreCase("legal")) {
-                    System.out.println(request.getParameter("type"));
                     LegalCustomer legalCustomer = new LegalCustomer();
                     legalCustomer.setEconomicCode(request.getParameter("economic_code"));
                     legalCustomer.setName(request.getParameter("company_name"));
                     String registrationDate = request.getParameter("year") + "/" + request.getParameter("month") + "/" + request.getParameter("day");
                     legalCustomer.setRegistrationDate(registrationDate);
-                    System.out.println(legalCustomer.getName() + " is a " + type + " customer");
                     try {
                         DBManager.insertToDataBase(connection, legalCustomer);
                         response.sendRedirect("successful-legal-insertion.html");
+                        logger.info("Redirect: successful-legal-insertion.html...");
                     } catch (DuplicateCustomerException e) {
-                        // successful = false;
-                        // message = "کد اقتصادی تکراری است.";
-                        System.out.println("Duplicate legal user");
                         response.sendRedirect("duplicate-legal-customer.html");
+                        logger.info("Redirect: duplicate-legal-customer.html...");
+
                     }
                 }
             }
-
-
         }
-
     }
 
     /**

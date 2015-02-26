@@ -11,12 +11,15 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.log4j.*;
+
 /**
  * Created by DOTIN SCHOOL 3 on 2/21/2015.
  *
  * @author SamiraRezaei
  */
 public class SearchServletClass extends HttpServlet {
+    static Logger logger = Logger.getLogger(SearchServletClass.class);
 
     public boolean checkFields(HttpServletRequest request) {
         String type = request.getParameter("type");
@@ -24,14 +27,14 @@ public class SearchServletClass extends HttpServlet {
         if (type.equalsIgnoreCase("real")) {
             if ((request.getParameter("first_name")).length() == 0 && request.getParameter("last_name").length() == 0
                     && request.getParameter("customer_id").length() == 0 && request.getParameter("national_code").length() == 0) {
-                System.out.println("insufficient parameter for search...real");
+                logger.info("Insufficient parameter for search...real customer");
                 validation = false;
             }
 
         } else if (type.equalsIgnoreCase("legal")) {
             if ((request.getParameter("company_name")).length() == 0 && request.getParameter("economic_code").length() == 0
                     && request.getParameter("customer_ID").length() == 0) {
-                System.out.println("insufficient parameter for search...legal");
+                logger.info("Insufficient parameter for search...legal customer");
                 validation = false;
             }
         }
@@ -40,7 +43,6 @@ public class SearchServletClass extends HttpServlet {
 
     public String makeSelectQueryForRealCustomer(HttpServletRequest request) {
         String query = "SELECT nationalCode,fk_customerID,firstName,lastName,fatherName,birthDate FROM real_customer WHERE ";
-       // RealCustomer realCustomer = new RealCustomer();
         int count = 0;
 
         if (request.getParameter("customer_id").length() > 0) {
@@ -72,9 +74,7 @@ public class SearchServletClass extends HttpServlet {
             } else {
                 query = query + " AND lastName='" + request.getParameter("last_name") + "'";
             }
-
         }
-        System.out.println("in servlet: "+query);
         return query;
     }
 
@@ -119,32 +119,35 @@ public class SearchServletClass extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (request != null) {
             request.setCharacterEncoding("UTF-8");
-            ///first check that user write sth for search
+            ///first check that user write sth for search///
             String type = request.getParameter("type");
             if (checkFields(request)) {
-                ///start search process and send query to server...
+                ///start search process and send query to server...///
                 if (type.equalsIgnoreCase("real")) {
                     String query = makeSelectQueryForRealCustomer(request);
-                    System.out.println("in post: "+query);
+                    logger.info("Make query: " + query);
+                    logger.info("Search query in DataBase...");
                     ArrayList<RealCustomer> realCustomerArrayList = DBManager.searchRealCustomer(query);
-                    System.out.println("size in post:"+realCustomerArrayList.size());
                     response.setContentType("text/html; charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     PrintWriter printWriter = response.getWriter();
                     printWriter.println(makeRealCustomerTable(realCustomerArrayList));
+                    logger.info("Render search result...");
                 }
                 ///search for legal customer...///
                 else if (type.equalsIgnoreCase("legal")) {
                     String query = makeSelectQueryForLegalCustomer(request);
-                    System.out.println(query);
+                    logger.info("Make query: " + query);
+                    logger.info("Search query in DataBase...");
                     ArrayList<LegalCustomer> legalCustomerArrayList = DBManager.searchLegalCustomer(query);
                     response.setContentType("text/html; charset=UTF-8");
                     response.setCharacterEncoding("UTF-8");
                     PrintWriter printWriter = response.getWriter();
                     printWriter.println(makeLegalCustomerTable(legalCustomerArrayList));
+                    logger.info("Render search result...");
                 }
             }
-            ///should tell user :Fill in at least one field....
+            ///should tell user :Fill in at least one field....///
             else {
                 if (type.equalsIgnoreCase("real")) {
                     response.sendRedirect("new-real-customer.html");
@@ -180,7 +183,6 @@ public class SearchServletClass extends HttpServlet {
             String birthDate = fillTableRow(realCustomer.getBirthDate());
             String nationalCode = fillTableRow(realCustomer.getNationalCode());
             String accountNumber = fillTableRow(realCustomer.getCustomerID());
-System.out.println(firstName+" "+lastName+""+fatherName+""+birthDate);
             tableRows = tableRows +
                     "<tr> " +
                     "<form action= \"/ModifyServletClass\" method=\"post\">\n" +
@@ -278,7 +280,6 @@ System.out.println(firstName+" "+lastName+""+fatherName+""+birthDate);
                     "<td>" + modifyButton + "</td>\n" +
                     " </form>"
                     + "</tr>\n";
-            System.out.println("search " + legalCustomer.getName() + " " + legalCustomer.getEconomicCode() + " " + legalCustomer.getCustomerID() + " " + legalCustomer.getRegistrationDate());
 
         }
         String htmlPart1 = "<!DOCTYPE html>\n" +

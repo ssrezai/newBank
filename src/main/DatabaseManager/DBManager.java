@@ -4,28 +4,33 @@ import classes.Customer;
 import classes.LegalCustomer;
 import classes.RealCustomer;
 import Exception.*;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.*;
+
+
 import java.sql.*;
 import java.util.ArrayList;
 
 /**
  * @author Samira Rezaei
- * Created by DOTIN SCHOOL 3 on 2/21/2015.
+ *         Created by DOTIN SCHOOL 3 on 2/21/2015.
  */
 public class DBManager {
-
+    static final Logger logger = Logger.getLogger(DBManager.class);
 
     public static Connection makeConnection() {
+
         Connection connection = null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            System.out.println("MySQL JDBC Driver Registered!");
+            logger.info("MySQL JDBC Driver Registered!");
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/bank_db?characterEncoding=UTF-8", "root", "12345");
             if (connection != null) {
-                System.out.println("successfully connected to DB...");
+                logger.info("...SUCCESSFULLY CONNECTED to DB...");
                 return connection;
 
             } else {
-                System.out.println("Failed to make connection!");
+                logger.error("Failed to make connection!");
             }
 
         } catch (ClassNotFoundException e) {
@@ -44,14 +49,15 @@ public class DBManager {
             try {
                 Boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
                 if (find) {
-                    // successful = false;
+                    logger.warn("DUPLICATE NATIONAL CODE...");
                     throw new DuplicateCustomerException("");
 
                 } else {
                     insertRealCustomer(connection, realCustomer);
-                    // successful = true;
+                    logger.info("SUCCESSFULLY ADD NEW REAL CUSTOMER...");
                 }
                 connection.close();
+                logger.info("...CLOSED CONNECTION TO DB...");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -60,12 +66,12 @@ public class DBManager {
             try {
                 Boolean find = hasRecordInLegalCustomerTable(connection, legalCustomer.getEconomicCode());
                 if (find) {
-                    // successful = false;
+                    logger.warn("DUPLICATE ECONOMIC CODE...");
                     throw new DuplicateCustomerException("");
 
                 } else {
                     insertLegalCustomer(connection, legalCustomer);
-                    //  successful = true;
+                    logger.info("SUCCESSFULLY ADD NEW LEGAL CUSTOMER...");
                 }
                 connection.close();
             } catch (SQLException e) {
@@ -81,7 +87,6 @@ public class DBManager {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, customerID);
             preparedStatement.executeUpdate();
-            System.out.println("Record is inserted into customer table!");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -111,10 +116,8 @@ public class DBManager {
             preparedStatement.setString(5, fatherName);
             preparedStatement.setString(6, birthDate);
             preparedStatement.executeUpdate();
-
-            System.out.println("Record is inserted into real_customer table!");
             connection.close();
-            System.out.println("connection was closed...");
+            logger.info("CONNECTION WAS CLOSED...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -132,10 +135,9 @@ public class DBManager {
                 count = resultSet.getInt(1);
             }
             customerID = count + 1;
-            System.out.println("new customer ID:" + customerID);
             return customerID;
         } catch (SQLException s) {
-            System.out.println("SQL statement is not executed!");
+            logger.error("SQL statement is not executed!");
         }
         return customerID;
     }
@@ -162,8 +164,7 @@ public class DBManager {
             preparedStatement.setString(4, registrationDate);
             preparedStatement.executeUpdate();
             connection.close();
-            System.out.println("connection was closed...");
-            System.out.println("Record is inserted into legal_customer table!");
+            logger.info("CONNECTION WAS CLOSED...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -191,11 +192,9 @@ public class DBManager {
     public static ArrayList<RealCustomer> searchRealCustomer(String query) {
         ArrayList<RealCustomer> realCustomersResult = new ArrayList<RealCustomer>();
         Connection connection = makeConnection();
-        System.out.println(query);
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
-            System.out.println(resultSet.getFetchSize());
             while (resultSet.next()) {
                 RealCustomer realCustomer = new RealCustomer();
                 realCustomer.setNationalCode(resultSet.getString("nationalCode"));
@@ -206,10 +205,12 @@ public class DBManager {
                 realCustomer.setBirthDate(resultSet.getString("birthDate"));
                 realCustomersResult.add(realCustomer);
             }
+            connection.close();
+            logger.info("...CONNECTION WAS CLOSED...SEARCH COMPLETE...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        System.out.println("size in DB:"+realCustomersResult.size());
+
         return realCustomersResult;
     }
 
@@ -227,6 +228,8 @@ public class DBManager {
                 legalCustomer.setEconomicCode(resultSet.getString("economicCode"));
                 legalCustomersResult.add(legalCustomer);
             }
+            connection.close();
+            logger.info("...CONNECTION WAS CLOSED...SEARCH COMPLETE...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -243,6 +246,7 @@ public class DBManager {
             Statement statement = connection.createStatement();
             statement.executeUpdate(customerQuery);
             connection.close();
+            logger.info("...CONNECTION WAS CLOSED...DELETE 1 RECORD...");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -255,7 +259,6 @@ public class DBManager {
             RealCustomer realCustomer = (RealCustomer) customer;
             String query = "UPDATE real_customer SET nationalCode=?, firstName=? ,lastName=? , fatherName=?, birthDate=? WHERE fk_customerID = ?";
             try {
-                System.out.println("DB.." + realCustomer.getFirstName() + " " + realCustomer.getCustomerID() + " " + realCustomer.getNationalCode());
 
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setString(1, realCustomer.getNationalCode());
@@ -265,6 +268,8 @@ public class DBManager {
                 preparedStatement.setString(5, realCustomer.getBirthDate());
                 preparedStatement.setInt(6, Integer.parseInt(realCustomer.getCustomerID()));
                 preparedStatement.executeUpdate();
+                connection.close();
+                logger.info("...CONNECTION WAS CLOSED...UPDATE COMPLETE...");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -279,6 +284,8 @@ public class DBManager {
                 preparedStatement.setString(3, legalCustomer.getRegistrationDate());
                 preparedStatement.setInt(4, Integer.parseInt(legalCustomer.getCustomerID()));
                 preparedStatement.executeUpdate();
+                connection.close();
+                logger.info("...CONNECTION WAS CLOSED...UPDATE COMPLETE...");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
