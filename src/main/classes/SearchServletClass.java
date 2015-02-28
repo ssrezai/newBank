@@ -143,7 +143,6 @@ public class SearchServletClass extends HttpServlet {
                 ///search for legal customer...///
                 else if (type.equalsIgnoreCase("legal")) {
                     String query = makeSelectQueryForLegalCustomer(request);
-                    logger.info("Make query: " + query);
                     logger.info("Search query in DataBase...");
                     ArrayList<LegalCustomer> legalCustomerArrayList = DBManager.searchLegalCustomer(query);
                     response.setContentType("text/html; charset=UTF-8");
