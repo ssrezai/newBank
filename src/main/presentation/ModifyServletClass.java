@@ -1,10 +1,8 @@
-package classes;
+package presentation;
 
-import DatabaseManager.DBManager;
-import Exception.DuplicateCustomerException;
+import database.DBManager;
 import logic.*;
 import org.apache.log4j.Logger;
-import Exception.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -28,12 +26,12 @@ public class ModifyServletClass extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         if (request.getParameter("delete") != null) {
             if (request.getParameter("type").equals("real")) {
-                RealCustomerManager.deleteRealCustomer(request.getParameter("customer_id"));
+                RealCustomerDAO.deleteRealCustomer(request.getParameter("customer_id"));
                 logger.info("Redirect: successful-remove.html");
                 response.sendRedirect("successful-remove.html");
             } else if (request.getParameter("type").equals("legal")) {
 
-                LegalCustomerManager.deleteLegalCustomer(request.getParameter("customer_id"));
+                LegalCustomerDAO.deleteLegalCustomer(request.getParameter("customer_id"));
                 logger.info("Redirect: successful-remove.html...");
                 response.sendRedirect("successful-remove.html");
             }
@@ -48,14 +46,11 @@ public class ModifyServletClass extends HttpServlet {
                 realCustomer.setNationalCode(request.getParameter("national_code"));
                 realCustomer.setCustomerID(request.getParameter("customer_id"));
                 try {
-                    if (RealCustomerManager.checkRealCustomerModify(realCustomer)) {
+                    if (RealCustomerDAO.checkRealCustomerModify(realCustomer)) {
                         logger.info("Redirect: successful-real-update.html...");
                         response.sendRedirect("successful-real-update.html");
-                    } else {
-
                     }
                 } catch (logic.DuplicateCustomerException e) {
-                    e.printStackTrace();
                     logger.warn("Duplicate National Code...");
                     response.sendRedirect("duplicate-real-customer.html");
                 }
@@ -67,17 +62,16 @@ public class ModifyServletClass extends HttpServlet {
                 legalCustomer.setCustomerID(request.getParameter("customer_id"));
 
 
-                    try {
-                        if (LegalCustomerManager.checkLegalCustomerModify(legalCustomer)) {
-                            DBManager.updateRecord(legalCustomer);
-                            logger.info("Redirect: successful-legal-update.html...");
-                            response.sendRedirect("successful-legal-update.html");
-                        }
-                    } catch (logic.DuplicateCustomerException e) {
-                        logger.warn("Duplicate Economic code...");
-                        response.sendRedirect("duplicate-legal-customer.html");
+                try {
+                    if (LegalCustomerDAO.checkLegalCustomerModify(legalCustomer)) {
+                        DBManager.updateRecord(legalCustomer);
+                        logger.info("Redirect: successful-legal-update.html...");
+                        response.sendRedirect("successful-legal-update.html");
                     }
-
+                } catch (logic.DuplicateCustomerException e) {
+                    logger.warn("Duplicate Economic code...");
+                    response.sendRedirect("duplicate-legal-customer.html");
+                }
 
 
             }

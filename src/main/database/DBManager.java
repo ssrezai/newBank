@@ -1,13 +1,10 @@
-package DatabaseManager;
+package database;
 
-import classes.Customer;
-import classes.LegalCustomer;
-import classes.RealCustomer;
-import Exception.*;
+import logic.Customer;
+import logic.LegalCustomer;
+import logic.RealCustomer;
 import org.apache.log4j.*;
 
-
-import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -42,44 +39,44 @@ public class DBManager {
         return connection;
     }
 
-    public static void insertToDataBase(Connection connection, Customer customer) throws DuplicateCustomerException {
-        String customerType = customer.getClass().getName();
-        if (customerType.contains("RealCustomer")) {
-            RealCustomer realCustomer = (RealCustomer) customer;
-            try {
-                Boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
-                if (find) {
-                    logger.warn("DUPLICATE NATIONAL CODE...");
-                    throw new DuplicateCustomerException("");
-
-                } else {
-                    insertRealCustomer(connection, realCustomer);
-                    logger.info("SUCCESSFULLY ADD NEW REAL CUSTOMER...");
-                }
-                connection.close();
-                logger.info("...CLOSED CONNECTION TO DB...");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        } else if (customerType.contains("LegalCustomer")) {
-            LegalCustomer legalCustomer = (LegalCustomer) customer;
-            try {
-                Boolean find = hasRecordInLegalCustomerTable(connection, legalCustomer.getEconomicCode());
-                if (find) {
-                    logger.warn("DUPLICATE ECONOMIC CODE...");
-                    throw new DuplicateCustomerException("");
-
-                } else {
-                    insertLegalCustomer(connection, legalCustomer);
-                    logger.info("SUCCESSFULLY ADD NEW LEGAL CUSTOMER...");
-                }
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
+//    public static void insertToDataBase(Connection connection, Customer customer) throws DuplicateCustomerException {
+//        String customerType = customer.getClass().getName();
+//        if (customerType.contains("RealCustomer")) {
+//            RealCustomer realCustomer = (RealCustomer) customer;
+//            try {
+//                Boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
+//                if (find) {
+//                    logger.warn("DUPLICATE NATIONAL CODE...");
+//                    throw new DuplicateCustomerException("");
+//
+//                } else {
+//                    insertRealCustomer(connection, realCustomer);
+//                    logger.info("SUCCESSFULLY ADD NEW REAL CUSTOMER...");
+//                }
+//                connection.close();
+//                logger.info("...CLOSED CONNECTION TO DB...");
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (customerType.contains("LegalCustomer")) {
+//            LegalCustomer legalCustomer = (LegalCustomer) customer;
+//            try {
+//                Boolean find = hasRecordInLegalCustomerTable(connection, legalCustomer.getEconomicCode());
+//                if (find) {
+//                    logger.warn("DUPLICATE ECONOMIC CODE...");
+//                    throw new DuplicateCustomerException("");
+//
+//                } else {
+//                    insertLegalCustomer(connection, legalCustomer);
+//                    logger.info("SUCCESSFULLY ADD NEW LEGAL CUSTOMER...");
+//                }
+//                connection.close();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//    }
 
     public static void insertCustomer(Connection connection, int customerID) {
         String query = "INSERT INTO customer (customerID) VALUES (?)";
@@ -145,7 +142,7 @@ public class DBManager {
     }
 
     public static int insertLegalCustomer(Connection connection, LegalCustomer legalCustomer) {
-        int customerID = -1;
+        int customerID ;
         String companyName = legalCustomer.getName();
         String registrationDate = legalCustomer.getRegistrationDate();
         String economicCode = legalCustomer.getEconomicCode();
@@ -173,23 +170,23 @@ public class DBManager {
         return customerID;
     }
 
-    public static boolean hasRecordInRealCustomerTable(Connection connection, String nationalCode) throws SQLException {
-        String query = "Select 1 from real_customer where nationalCode = ?";
+//    public static boolean hasRecordInRealCustomerTable(Connection connection, String nationalCode) throws SQLException {
+//        String query = "Select 1 from real_customer where nationalCode = ?";
+//
+//        PreparedStatement preparedStatement = connection.prepareStatement(query);
+//        preparedStatement.setString(1, nationalCode);
+//        ResultSet rs = preparedStatement.executeQuery();
+//        return rs.next();
+//    }
 
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setString(1, nationalCode);
-        ResultSet rs = preparedStatement.executeQuery();
-        return rs.next();
-    }
-
-    private static boolean hasRecordInLegalCustomerTable(Connection connection, String economicCode) throws SQLException {
-        String query = "Select 1 from legal_customer where economicCode = ?";
-
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setString(1, economicCode);
-        ResultSet rs = preparedStatement.executeQuery();
-        return rs.next();
-    }
+//    private static boolean hasRecordInLegalCustomerTable(Connection connection, String economicCode) throws SQLException {
+//        String query = "Select 1 from legal_customer where economicCode = ?";
+//
+//        PreparedStatement preparedStatement = connection.prepareStatement(query);
+//        preparedStatement.setString(1, economicCode);
+//        ResultSet rs = preparedStatement.executeQuery();
+//        return rs.next();
+//    }
 
     public static ArrayList<RealCustomer> searchRealCustomer(String query) {
         ArrayList<RealCustomer> realCustomersResult = new ArrayList<RealCustomer>();
@@ -256,63 +253,63 @@ public class DBManager {
         }
     }
 
-    public static boolean checkNationalCodeUpdating(Connection connection, RealCustomer realCustomer) throws DuplicateCustomerException {
-        boolean result = true;
-
-        try {
-            boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
-            if (find) {
-                String checkNCodeQuery = "SELECT fk_customerID FROM real_customer WHERE nationalCode=" + new BigInteger(realCustomer.getNationalCode());
-                PreparedStatement statement = connection.prepareStatement(checkNCodeQuery);
-                ResultSet resultSet = statement.executeQuery(checkNCodeQuery);
-                while (resultSet.next()) {
-                    if (realCustomer.getCustomerID().equals(resultSet.getString(1))) {
-                        result = true;
-                    } else {
-                        result = false;
-                        throw new DuplicateCustomerException("...Duplicate National Code Exception...");
-                    }
-                }
-            } else {
-                result = true;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
-    public static boolean checkEconomicCodeUpdating(Connection connection, LegalCustomer legalCustomer) throws DuplicateCustomerException {
-        boolean result = true;
-
-        try {
-            boolean find = hasRecordInLegalCustomerTable(connection, legalCustomer.getEconomicCode());
-            if (find) {
-                String query = "SELECT fk_customerID FROM legal_customer WHERE economicCode='" + legalCustomer.getEconomicCode() + "'";
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                ResultSet resultSet = preparedStatement.executeQuery(query);
-                while (resultSet.next()) {
-                    System.out.println(resultSet.getString(1));
-
-                    if (legalCustomer.getCustomerID().equals(resultSet.getString(1))) {
-                        result = true;
-                    } else {
-                        result = false;
-                        throw new DuplicateCustomerException("...Duplicate Economic Code Exception...");
-                    }
-                }
-            } else {
-                result = true;
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
+//    public static boolean checkNationalCodeUpdating(Connection connection, RealCustomer realCustomer) throws DuplicateCustomerException {
+//        boolean result = true;
+//
+//        try {
+//            boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
+//            if (find) {
+//                String checkNCodeQuery = "SELECT fk_customerID FROM real_customer WHERE nationalCode=" + new BigInteger(realCustomer.getNationalCode());
+//                PreparedStatement statement = connection.prepareStatement(checkNCodeQuery);
+//                ResultSet resultSet = statement.executeQuery(checkNCodeQuery);
+//                while (resultSet.next()) {
+//                    if (realCustomer.getCustomerID().equals(resultSet.getString(1))) {
+//                        result = true;
+//                    } else {
+//                        result = false;
+//                        throw new DuplicateCustomerException("...Duplicate National Code Exception...");
+//                    }
+//                }
+//            } else {
+//                result = true;
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return result;
+//    }
+//
+//    public static boolean checkEconomicCodeUpdating(Connection connection, LegalCustomer legalCustomer) throws DuplicateCustomerException {
+//        boolean result = true;
+//
+//        try {
+//            boolean find = hasRecordInLegalCustomerTable(connection, legalCustomer.getEconomicCode());
+//            if (find) {
+//                String query = "SELECT fk_customerID FROM legal_customer WHERE economicCode='" + legalCustomer.getEconomicCode() + "'";
+//                PreparedStatement preparedStatement = connection.prepareStatement(query);
+//                ResultSet resultSet = preparedStatement.executeQuery(query);
+//                while (resultSet.next()) {
+//                    System.out.println(resultSet.getString(1));
+//
+//                    if (legalCustomer.getCustomerID().equals(resultSet.getString(1))) {
+//                        result = true;
+//                    } else {
+//                        result = false;
+//                        throw new DuplicateCustomerException("...Duplicate Economic Code Exception...");
+//                    }
+//                }
+//            } else {
+//                result = true;
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return result;
+//    }
 
 
     public static void updateRecord(Customer customer) {

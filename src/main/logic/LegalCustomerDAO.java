@@ -1,7 +1,6 @@
 package logic;
 
-import DatabaseManager.DBManager;
-import classes.LegalCustomer;
+import database.DBManager;
 import org.apache.log4j.*;
 
 import java.sql.Connection;
@@ -14,7 +13,7 @@ import java.sql.SQLException;
  *
  * @author samira rezaei
  */
-public class LegalCustomerManager {
+public class LegalCustomerDAO {
 
     static final Logger logger = Logger.getLogger(DBManager.class);
 

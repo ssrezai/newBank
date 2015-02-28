@@ -10,15 +10,15 @@
     <display-name>Archetype Created Web Application</display-name>
     <servlet>
         <servlet-name>ServletClass</servlet-name>
-        <servlet-class>classes.InsertServletClass</servlet-class>
+        <servlet-class>presentation.InsertServletClass</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>SearchServletClass</servlet-name>
-        <servlet-class>classes.SearchServletClass</servlet-class>
+        <servlet-class>presentation.SearchServletClass</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>ModifyServletClass</servlet-name>
-        <servlet-class>classes.ModifyServletClass</servlet-class>
+        <servlet-class>presentation.ModifyServletClass</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ServletClass</servlet-name>

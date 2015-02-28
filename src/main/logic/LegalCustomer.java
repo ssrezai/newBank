@@ -1,4 +1,5 @@
-package classes;
+package logic;
+
 
 /**
  * Created by DOTIN SCHOOL 3 on 2/19/2015.

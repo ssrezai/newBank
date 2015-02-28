@@ -1,6 +1,6 @@
-package classes;
+package presentation;
 
-import DatabaseManager.DBManager;
+import database.DBManager;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
+import logic.LegalCustomer;
+import logic.RealCustomer;
 import org.apache.log4j.*;
 
 /**

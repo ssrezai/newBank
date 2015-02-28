@@ -1,7 +1,6 @@
 package logic;
 
-import DatabaseManager.DBManager;
-import classes.RealCustomer;
+import database.DBManager;
 import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +15,7 @@ import java.sql.SQLException;
  * Created by DOTIN SCHOOL 3 on 2/28/2015.
  * @author Samira Rezaei
  */
-public class RealCustomerManager {
+public class RealCustomerDAO {
     static final Logger logger = Logger.getLogger(DBManager.class);
 
     public static String checkParameter(HttpServletRequest request) throws IOException {
