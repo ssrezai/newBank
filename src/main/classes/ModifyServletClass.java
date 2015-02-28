@@ -24,7 +24,6 @@ public class ModifyServletClass extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         if (request.getParameter("delete") != null) {
             if (request.getParameter("type").equals("real")) {
-
                 String query = "DELETE FROM real_customer WHERE fk_customerID= ?";
                 DBManager.deleteRecord(query, request.getParameter("customer_id"));
                 logger.info("Redirect: successful-remove.html");
