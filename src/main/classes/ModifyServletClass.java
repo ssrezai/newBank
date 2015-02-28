@@ -2,6 +2,7 @@ package classes;
 
 import DatabaseManager.DBManager;
 import org.apache.log4j.Logger;
+import Exception.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -44,20 +45,31 @@ public class ModifyServletClass extends HttpServlet {
                 realCustomer.setBirthDate(request.getParameter("birth_date"));
                 realCustomer.setNationalCode(request.getParameter("national_code"));
                 realCustomer.setCustomerID(request.getParameter("customer_id"));
-                DBManager.updateRecord(realCustomer);
-                logger.info("Redirect: successful-real-update.html...");
-                response.sendRedirect("successful-real-update.html");
+                try {
+                    DBManager.updateRecord(realCustomer);
+                    logger.info("Redirect: successful-real-update.html...");
+                    response.sendRedirect("successful-real-update.html");
+                } catch (DuplicateCustomerException e) {e.printStackTrace();
+                    logger.warn("Duplicate National Code...");
+                    response.sendRedirect("duplicate-real-customer.html");
+                }
+
             } else if (request.getParameter("type").equals("legal")) {
                 LegalCustomer legalCustomer = new LegalCustomer();
                 legalCustomer.setEconomicCode(request.getParameter("economic_code"));
                 legalCustomer.setRegistrationDate(request.getParameter("registration_date"));
                 legalCustomer.setName(request.getParameter("company_name"));
                 legalCustomer.setCustomerID(request.getParameter("customer_id"));
-                DBManager.updateRecord(legalCustomer);
-                logger.info("Redirect: successful-legal-update.html...");
-                response.sendRedirect("successful-legal-update.html");
-            }
 
+                try {
+                    DBManager.updateRecord(legalCustomer);
+                    logger.info("Redirect: successful-legal-update.html...");
+                    response.sendRedirect("successful-legal-update.html");
+                } catch (DuplicateCustomerException e) {
+                    logger.warn("Duplicate Economic code...");
+                    response.sendRedirect("duplicate-legal-customer.html");
+                }
+            }
         }
     }
 

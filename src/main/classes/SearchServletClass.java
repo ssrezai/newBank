@@ -124,6 +124,12 @@ public class SearchServletClass extends HttpServlet {
             if (checkFields(request)) {
                 ///start search process and send query to server...///
                 if (type.equalsIgnoreCase("real")) {
+//                    RealCustomer realCustomer= new RealCustomer();
+//                    realCustomer.setFirstName(request.getParameter("first_name"));
+//                    realCustomer.setLastName(request.getParameter("last_name"));
+//                    realCustomer.setNationalCode(request.getParameter("national_code"));
+//                    realCustomer.setCustomerID(request.getParameter("customer_id"));
+
                     String query = makeSelectQueryForRealCustomer(request);
                     logger.info("Make query: " + query);
                     logger.info("Search query in DataBase...");

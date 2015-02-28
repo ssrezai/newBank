@@ -4,7 +4,6 @@ import classes.Customer;
 import classes.LegalCustomer;
 import classes.RealCustomer;
 import Exception.*;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.*;
 
 
@@ -171,7 +170,7 @@ public class DBManager {
 
     }
 
-    private static boolean hasRecordInRealCustomerTable(Connection connection, String nationalCode) throws SQLException {
+    public static boolean hasRecordInRealCustomerTable(Connection connection, String nationalCode) throws SQLException {
         String query = "Select 1 from real_customer where nationalCode = ?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -192,6 +191,8 @@ public class DBManager {
     public static ArrayList<RealCustomer> searchRealCustomer(String query) {
         ArrayList<RealCustomer> realCustomersResult = new ArrayList<RealCustomer>();
         Connection connection = makeConnection();
+        //String query=makeSelectQueryForRealCustomer(requestedRealCustomer);
+        //System.out.println(query);
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -252,43 +253,193 @@ public class DBManager {
         }
     }
 
-    public static void updateRecord(Customer customer) {
+    public static boolean checkNationalCodeUpdating(Connection connection, RealCustomer realCustomer) throws DuplicateCustomerException {
+        boolean result = true;
+
+        try {
+            boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
+            if (find) {
+                String checkNCodeQuery = "SELECT fk_customerID FROM real_customer WHERE nationalCode=" + Integer.parseInt(realCustomer.getNationalCode());
+                PreparedStatement statement = connection.prepareStatement(checkNCodeQuery);
+                ResultSet resultSet = statement.executeQuery(checkNCodeQuery);
+                while (resultSet.next()) {
+                    System.out.println(resultSet.getString(1));
+
+                    if (realCustomer.getCustomerID().equals(resultSet.getString(1))) {
+                        result = true;
+                    } else {
+                        result = false;
+                        throw new DuplicateCustomerException("...Duplicate National Code Exception...");
+                    }
+
+                }
+            } else {
+                result = true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public static boolean checkEconomicCodeUpdating(Connection connection, LegalCustomer legalCustomer) throws DuplicateCustomerException {
+        boolean result = true;
+
+        try {
+            boolean find = hasRecordInLegalCustomerTable(connection, legalCustomer.getEconomicCode());
+            if (find) {
+                String query = "SELECT fk_customerID FROM legal_customer WHERE economicCode='" + legalCustomer.getEconomicCode() + "'";
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                ResultSet resultSet = preparedStatement.executeQuery(query);
+                while (resultSet.next()) {
+                    System.out.println(resultSet.getString(1));
+
+                    if (legalCustomer.getCustomerID().equals(resultSet.getString(1))) {
+                        result = true;
+                    } else {
+                        result = false;
+                        throw new DuplicateCustomerException("...Duplicate Economic Code Exception...");
+                    }
+                }
+            } else {
+                result = true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
+    public static void updateRecord(Customer customer) throws DuplicateCustomerException {
         Connection connection = makeConnection();
         String customerType = customer.getClass().getName();
         if (customerType.contains("RealCustomer")) {
             RealCustomer realCustomer = (RealCustomer) customer;
-            String query = "UPDATE real_customer SET nationalCode=?, firstName=? ,lastName=? , fatherName=?, birthDate=? WHERE fk_customerID = ?";
-            try {
+            if (checkNationalCodeUpdating(connection, realCustomer)) {
+                String query = "UPDATE real_customer SET nationalCode=?, firstName=? ,lastName=? , fatherName=?, birthDate=? WHERE fk_customerID = ?";
+                try {
 
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                preparedStatement.setString(1, realCustomer.getNationalCode());
-                preparedStatement.setString(2, realCustomer.getFirstName());
-                preparedStatement.setString(3, realCustomer.getLastName());
-                preparedStatement.setString(4, realCustomer.getFatherName());
-                preparedStatement.setString(5, realCustomer.getBirthDate());
-                preparedStatement.setInt(6, Integer.parseInt(realCustomer.getCustomerID()));
-                preparedStatement.executeUpdate();
-                connection.close();
-                logger.info("...CONNECTION WAS CLOSED...UPDATE COMPLETE...");
-            } catch (SQLException e) {
-                e.printStackTrace();
+                    PreparedStatement preparedStatement = connection.prepareStatement(query);
+                    preparedStatement.setString(1, realCustomer.getNationalCode());
+                    preparedStatement.setString(2, realCustomer.getFirstName());
+                    preparedStatement.setString(3, realCustomer.getLastName());
+                    preparedStatement.setString(4, realCustomer.getFatherName());
+                    preparedStatement.setString(5, realCustomer.getBirthDate());
+                    preparedStatement.setInt(6, Integer.parseInt(realCustomer.getCustomerID()));
+                    preparedStatement.executeUpdate();
+                    connection.close();
+                    logger.info("...CONNECTION WAS CLOSED...UPDATE COMPLETE...");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
+
         } else if (customerType.contains("LegalCustomer")) {
             LegalCustomer legalCustomer = (LegalCustomer) customer;
-            String query = "UPDATE legal_customer SET economicCode=?, companyName=? ,registrationDate=?  WHERE fk_customerID=? ";
-            System.out.println("DB.." + legalCustomer.getName() + " " + legalCustomer.getEconomicCode() + " " + legalCustomer.getCustomerID() + " " + legalCustomer.getRegistrationDate());
-            try {
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                preparedStatement.setString(1, legalCustomer.getEconomicCode());
-                preparedStatement.setString(2, legalCustomer.getName());
-                preparedStatement.setString(3, legalCustomer.getRegistrationDate());
-                preparedStatement.setInt(4, Integer.parseInt(legalCustomer.getCustomerID()));
-                preparedStatement.executeUpdate();
-                connection.close();
-                logger.info("...CONNECTION WAS CLOSED...UPDATE COMPLETE...");
-            } catch (SQLException e) {
-                e.printStackTrace();
+            if (checkEconomicCodeUpdating(connection, legalCustomer)) {
+                String query = "UPDATE legal_customer SET economicCode=?, companyName=? ,registrationDate=?  WHERE fk_customerID=? ";
+                try {
+                    PreparedStatement preparedStatement = connection.prepareStatement(query);
+                    preparedStatement.setString(1, legalCustomer.getEconomicCode());
+                    preparedStatement.setString(2, legalCustomer.getName());
+                    preparedStatement.setString(3, legalCustomer.getRegistrationDate());
+                    preparedStatement.setInt(4, Integer.parseInt(legalCustomer.getCustomerID()));
+                    preparedStatement.executeUpdate();
+                    connection.close();
+                    logger.info("...CONNECTION WAS CLOSED...UPDATE COMPLETE...");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+
+//    public static String makeSelectQueryForRealCustomer(RealCustomer realCustomer) {
+//        String part1 = "SELECT ";
+//        String part2 = " FROM real_customer WHERE ";
+//
+//        int count = 0;
+//
+//        if (realCustomer.getNationalCode().length() > 0) {
+//            part1 = part1 + " nationalCode" ;
+//            part2=part2+ " ?";
+//            count++;
+//        }
+//        if (realCustomer.getCustomerID().length() > 0) {
+//            if (count == 0) {
+//                part1 = part1 + "fk_customerID" ;
+//                part2=part2+ " ? ";
+//
+//            } else {
+//                part1 = part1 + ",fk_customerID" ;
+//                part2=part2+ ", ?";
+//            }
+//            count++;
+//        }
+//        if (realCustomer.getFirstName().length() > 0) {
+//            if (count == 0) {
+//                part1 = part1 + "firstName" ;
+//                part2=part2+ " ? ";
+//
+//            } else {
+//                part1 = part1 + ",firstName" ;
+//                part2=part2+ ", ?";            }
+//            count++;
+//        }
+//        if (realCustomer.getLastName().length() > 0) {
+//            if (count == 0) {
+//                part1 = part1 + "lastName" ;
+//                part2=part2+ " ? ";
+//            } else {
+//                part1 = part1 + ",lastName" ;
+//                part2=part2+ ", ?";            }
+//        }
+//        return part1+part2;
+//    }
+
+
+//    public static ArrayList<LegalCustomer> searchLegalCustomer2(RealCustomer realC) {
+//        ArrayList<LegalCustomer> legalCustomersResult = new ArrayList<LegalCustomer>();
+//        Connection connection = makeConnection();
+//        String query=makeSelectQueryForRealCustomer(realC);
+//        try {
+//            PreparedStatement preparedStatement = connection.prepareStatement(query);
+//            if(realC.getNationalCode().length()>0)
+//            {
+//                preparedStatement.setInt(1,Integer.parseInt(realC.getNationalCode()));
+//            }
+//            if(realC.get().length()>0)
+//            {
+//                preparedStatement.setInt(1,Integer.parseInt(realC.getNationalCode()));
+//            }
+//            if(realC.getNationalCode().length()>0)
+//            {
+//                preparedStatement.setInt(1,Integer.parseInt(realC.getNationalCode()));
+//            }
+//            if(realC.getNationalCode().length()>0)
+//            {
+//                preparedStatement.setInt(1,Integer.parseInt(realC.getNationalCode()));
+//            }
+//            ResultSet resultSet = preparedStatement.executeQuery();
+//            while (resultSet.next()) {
+//                LegalCustomer legalCustomer = new LegalCustomer();
+//                legalCustomer.setRegistrationDate(resultSet.getString("registrationDate"));
+//                legalCustomer.setName(resultSet.getString("companyName"));
+//                legalCustomer.setCustomerID(resultSet.getString("fk_customerID"));
+//                legalCustomer.setEconomicCode(resultSet.getString("economicCode"));
+//                legalCustomersResult.add(legalCustomer);
+//            }
+//            connection.close();
+//            logger.info("...CONNECTION WAS CLOSED...SEARCH COMPLETE...");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return legalCustomersResult;
+//    }
+
 }
