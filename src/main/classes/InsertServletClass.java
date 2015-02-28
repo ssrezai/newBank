@@ -1,7 +1,7 @@
 package classes;
 
-import Exception.*;
 import DatabaseManager.DBManager;
+import logic.*;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
@@ -59,7 +59,8 @@ public class InsertServletClass extends HttpServlet {
         if (request != null) {
             BasicConfigurator.configure();
             request.setCharacterEncoding("UTF-8");
-            String url = checkParameter(request);
+
+            String url = RealCustomerManager.checkParameter(request);
             if (url.length() != 0) {
                 logger.warn("Insufficient parameter for submit new customer...");
                 response.sendRedirect(url);
@@ -75,14 +76,19 @@ public class InsertServletClass extends HttpServlet {
                     String birthDate = request.getParameter("year") + "/" + request.getParameter("month") + "/" + request.getParameter("day");
                     realCustomer.setBirthDate(birthDate);
                     realCustomer.setNationalCode(request.getParameter("national_code"));
+
                     try {
-                        DBManager.insertToDataBase(connection, realCustomer);
-                        response.sendRedirect("successful-real-insertion.html");
-                        logger.info("Redirect: successful-real-insertion.html...");
-                    } catch (DuplicateCustomerException e) {
+                        int result = RealCustomerManager.insertRealCustomer(realCustomer);
+                        if (result != -1) {
+                            response.sendRedirect("successful-real-insertion.html");
+                            logger.info("Redirect: successful-real-insertion.html...");
+                        }
+
+                    } catch (logic.DuplicateCustomerException e) {
                         response.sendRedirect("duplicate-real-customer.html");
                         logger.info("Redirect: duplicate-real-customer.html...");
                     }
+
 
                 } else if (type.equalsIgnoreCase("legal")) {
                     LegalCustomer legalCustomer = new LegalCustomer();
@@ -90,15 +96,19 @@ public class InsertServletClass extends HttpServlet {
                     legalCustomer.setName(request.getParameter("company_name"));
                     String registrationDate = request.getParameter("year") + "/" + request.getParameter("month") + "/" + request.getParameter("day");
                     legalCustomer.setRegistrationDate(registrationDate);
+
                     try {
-                        DBManager.insertToDataBase(connection, legalCustomer);
-                        response.sendRedirect("successful-legal-insertion.html");
-                        logger.info("Redirect: successful-legal-insertion.html...");
-                    } catch (DuplicateCustomerException e) {
+                        int result = LegalCustomerManager.insertLegalCustomer(legalCustomer);
+                        if (result != -1) {
+                            response.sendRedirect("successful-legal-insertion.html");
+                            logger.info("Redirect: successful-legal-insertion.html...");
+                        }
+
+                    } catch (logic.DuplicateCustomerException e) {
                         response.sendRedirect("duplicate-legal-customer.html");
                         logger.info("Redirect: duplicate-legal-customer.html...");
-
                     }
+
                 }
             }
         }

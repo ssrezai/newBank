@@ -1,6 +1,8 @@
 package classes;
 
 import DatabaseManager.DBManager;
+import Exception.DuplicateCustomerException;
+import logic.*;
 import org.apache.log4j.Logger;
 import Exception.*;
 
@@ -26,13 +28,12 @@ public class ModifyServletClass extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         if (request.getParameter("delete") != null) {
             if (request.getParameter("type").equals("real")) {
-                String query = "DELETE FROM real_customer WHERE fk_customerID= ?";
-                DBManager.deleteRecord(query, request.getParameter("customer_id"));
+                RealCustomerManager.deleteRealCustomer(request.getParameter("customer_id"));
                 logger.info("Redirect: successful-remove.html");
                 response.sendRedirect("successful-remove.html");
             } else if (request.getParameter("type").equals("legal")) {
-                String query = "DELETE FROM legal_customer WHERE fk_customerID= ?";
-                DBManager.deleteRecord(query, request.getParameter("customer_id"));
+
+                LegalCustomerManager.deleteLegalCustomer(request.getParameter("customer_id"));
                 logger.info("Redirect: successful-remove.html...");
                 response.sendRedirect("successful-remove.html");
             }
@@ -47,15 +48,17 @@ public class ModifyServletClass extends HttpServlet {
                 realCustomer.setNationalCode(request.getParameter("national_code"));
                 realCustomer.setCustomerID(request.getParameter("customer_id"));
                 try {
-                    DBManager.updateRecord(realCustomer);
-                    logger.info("Redirect: successful-real-update.html...");
-                    response.sendRedirect("successful-real-update.html");
-                } catch (DuplicateCustomerException e) {
+                    if (RealCustomerManager.checkRealCustomerModify(realCustomer)) {
+                        logger.info("Redirect: successful-real-update.html...");
+                        response.sendRedirect("successful-real-update.html");
+                    } else {
+
+                    }
+                } catch (logic.DuplicateCustomerException e) {
                     e.printStackTrace();
                     logger.warn("Duplicate National Code...");
                     response.sendRedirect("duplicate-real-customer.html");
                 }
-
             } else if (request.getParameter("type").equals("legal")) {
                 LegalCustomer legalCustomer = new LegalCustomer();
                 legalCustomer.setEconomicCode(request.getParameter("economic_code"));
@@ -63,14 +66,20 @@ public class ModifyServletClass extends HttpServlet {
                 legalCustomer.setName(request.getParameter("company_name"));
                 legalCustomer.setCustomerID(request.getParameter("customer_id"));
 
-                try {
-                    DBManager.updateRecord(legalCustomer);
-                    logger.info("Redirect: successful-legal-update.html...");
-                    response.sendRedirect("successful-legal-update.html");
-                } catch (DuplicateCustomerException e) {
-                    logger.warn("Duplicate Economic code...");
-                    response.sendRedirect("duplicate-legal-customer.html");
-                }
+
+                    try {
+                        if (LegalCustomerManager.checkLegalCustomerModify(legalCustomer)) {
+                            DBManager.updateRecord(legalCustomer);
+                            logger.info("Redirect: successful-legal-update.html...");
+                            response.sendRedirect("successful-legal-update.html");
+                        }
+                    } catch (logic.DuplicateCustomerException e) {
+                        logger.warn("Duplicate Economic code...");
+                        response.sendRedirect("duplicate-legal-customer.html");
+                    }
+
+
+
             }
         }
     }
