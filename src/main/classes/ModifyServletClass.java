@@ -49,7 +49,8 @@ public class ModifyServletClass extends HttpServlet {
                     DBManager.updateRecord(realCustomer);
                     logger.info("Redirect: successful-real-update.html...");
                     response.sendRedirect("successful-real-update.html");
-                } catch (DuplicateCustomerException e) {e.printStackTrace();
+                } catch (DuplicateCustomerException e) {
+                    e.printStackTrace();
                     logger.warn("Duplicate National Code...");
                     response.sendRedirect("duplicate-real-customer.html");
                 }

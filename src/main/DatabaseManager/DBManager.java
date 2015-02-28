@@ -7,6 +7,7 @@ import Exception.*;
 import org.apache.log4j.*;
 
 
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -259,19 +260,16 @@ public class DBManager {
         try {
             boolean find = hasRecordInRealCustomerTable(connection, realCustomer.getNationalCode());
             if (find) {
-                String checkNCodeQuery = "SELECT fk_customerID FROM real_customer WHERE nationalCode=" + Integer.parseInt(realCustomer.getNationalCode());
+                String checkNCodeQuery = "SELECT fk_customerID FROM real_customer WHERE nationalCode=" + new BigInteger(realCustomer.getNationalCode());
                 PreparedStatement statement = connection.prepareStatement(checkNCodeQuery);
                 ResultSet resultSet = statement.executeQuery(checkNCodeQuery);
                 while (resultSet.next()) {
-                    System.out.println(resultSet.getString(1));
-
                     if (realCustomer.getCustomerID().equals(resultSet.getString(1))) {
                         result = true;
                     } else {
                         result = false;
                         throw new DuplicateCustomerException("...Duplicate National Code Exception...");
                     }
-
                 }
             } else {
                 result = true;

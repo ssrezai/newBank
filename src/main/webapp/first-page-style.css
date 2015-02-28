@@ -1,3 +1,4 @@
+
 body {
     background-color: #eeffee;
     align-content: center;
@@ -11,10 +12,11 @@ div {
     margin-left: 70px;
     text-align: center;
 }
-a
-{
+
+a {
     font-size: 20px;
 }
+
 a:hover {
     color: #ff0e18;
     text-decoration: underline;

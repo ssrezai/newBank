@@ -14,6 +14,5 @@ public class MAIN {
 
         System.out.println("سلام");
 
-
     }
 }
